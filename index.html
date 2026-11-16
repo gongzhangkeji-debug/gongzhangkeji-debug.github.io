@@ -599,6 +599,8 @@
   </div>
 </div>
 
+<script src="sdk-cloud.js"></script>
+<script src="cloud.js"></script>
 <script>
 (function(){
   /* ============ 淡入动效 ============ */
@@ -929,181 +931,92 @@
     var grid = document.getElementById('dynamicGrid');
     var title = document.getElementById('dynamicTitle');
     var sub = document.getElementById('dynamicSub');
-    var cards = [];
-    try{
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){ cards = JSON.parse(raw); }
-    }catch(e){
-      cards = [];
-    }
-    if(!cards || cards.length === 0){
-      return;  // 没有后台项目，保持隐藏
-    }
-    // 有项目则显示标题区
-    title.style.display = '';
-    sub.style.display = '';
 
-    cards.forEach(function(card){
-      var el = document.createElement('div');
-      el.className = 'project-card fade-up visible';
-      el.style.cursor = 'pointer';
-
-      // 缩略图
-      var thumb = document.createElement('img');
-      thumb.className = 'thumb contain';
-      thumb.src = card.dataUrl;
-      thumb.alt = card.title;
-      if(card.type === 'video'){
-        // 视频用图标占位 + 播放提示
-        thumb.src = '';
-        thumb.style.display = 'none';
+    /* 渲染卡片（云数据与本地草稿共用同一套渲染） */
+    function render(cards, fromCloud){
+      grid.innerHTML = '';
+      if(!cards || cards.length === 0){
+        title.style.display = 'none';
+        sub.style.display = 'none';
+        return;
       }
-      el.appendChild(thumb);
+      title.style.display = '';
+      sub.style.display = '';
+      sub.textContent = fromCloud
+        ? '以下项目来自云端，可由后台随时更新。'
+        : '以下项目为本地草稿（云端暂未连接）。';
 
-      var body = document.createElement('div');
-      body.className = 'body';
-      var tag = document.createElement('span');
-      tag.className = 'tag';
-      tag.textContent = card.type === 'video' ? '视频' : '作品';
-      var h3 = document.createElement('h3');
-      h3.textContent = card.title || '未命名项目';
-      body.appendChild(tag);
-      body.appendChild(h3);
-      el.appendChild(body);
+      cards.forEach(function(card){
+        var el = document.createElement('div');
+        el.className = 'project-card fade-up visible';
+        el.style.cursor = 'pointer';
 
-      var arrow = document.createElement('span');
-      arrow.className = 'arrow';
-      arrow.textContent = '→';
-      el.appendChild(arrow);
+        if(card.type !== 'video' && card.dataUrl){
+          var thumb = document.createElement('img');
+          thumb.className = 'thumb contain';
+          thumb.src = card.dataUrl;
+          thumb.alt = card.title || '';
+          el.appendChild(thumb);
+        }
 
-      // 点击打开原图/视频
-      el.addEventListener('click', function(){
-        window.open(card.dataUrl, '_blank');
-      });
+        var body = document.createElement('div');
+        body.className = 'body';
+        var tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = card.type === 'video' ? '视频' : '作品';
+        var h3 = document.createElement('h3');
+        h3.textContent = card.title || '未命名项目';
+        body.appendChild(tag);
+        body.appendChild(h3);
+        el.appendChild(body);
 
-      grid.appendChild(el);
-    });
-  })();
+        var arrow = document.createElement('span');
+        arrow.className = 'arrow';
+        arrow.textContent = '→';
+        el.appendChild(arrow);
 
-  /* ============ 顶部粒子光效：Logo 粒子化 + 收放节奏 + 体积光（细腻克制） ============ */
-  (function initParticles(){
-    var canvas = document.getElementById('particleCanvas');
-    if(!canvas) return;
-    var ctx = canvas.getContext('2d');
-    var W, H, cx, cy;
-    var t = 0;   // 全局时间
+        el.addEventListener('click', function(){
+          if(card.dataUrl){ window.open(card.dataUrl, '_blank'); }
+        });
 
-    function resize(){
-      var hero = canvas.parentElement;
-      W = canvas.width = hero.offsetWidth;
-      H = canvas.height = hero.offsetHeight;
-      cx = W * 0.30;
-      cy = H * 0.34;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    /* 橙红同色系（呼应 Logo） */
-    function logoColor(k){
-      var r = Math.round(190 + (255 - 190) * k);
-      var g = Math.round(95 + (240 - 95) * k);
-      var b = Math.round(72 + (205 - 72) * k);
-      return [r, g, b];
-    }
-
-    /* 粒子：分层（内层亮/外层暗），每层有自己的呼吸相位 */
-    var particles = [];
-    var N = 64;   // 克制数量
-    for(var i = 0; i < N; i++){
-      particles.push({
-        baseAngle: Math.random() * Math.PI * 2,      // 基础角度
-        baseRadius: 30 + Math.random() * 170,         // 基础半径（分层）
-        rotSpeed: 0.003 + Math.random() * 0.006,      // 慢速旋转
-        phase: Math.random() * Math.PI * 2,           // 呼吸相位
-        r: 0.8 + Math.random() * 1.8,
-        depth: Math.random()                         // 层次因子
+        grid.appendChild(el);
       });
     }
 
-    /* 呼吸节奏：整体聚合-发散（慢周期） */
-    function breath(now){
-      return 0.5 + 0.5 * Math.sin(now * 0.00035);   // 约 18 秒一个完整呼吸周期
+    /* 本地草稿兜底 */
+    function loadLocal(){
+      var cards = [];
+      try{
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){ cards = JSON.parse(raw) || []; }
+      }catch(e){ cards = []; }
+      render(cards, false);
     }
 
-    function draw(now){
-      ctx.clearRect(0, 0, W, H);
-      var b = breath(now);
-
-      /* 1. 体积光：多层柔光晕（模拟体积光，克制低透明度） */
-      var volLayers = [
-        { r: 150, a: 0.10 * (0.6 + b * 0.4) },
-        { r: 260, a: 0.05 * (0.6 + b * 0.4) },
-        { r: 380, a: 0.025 * (0.6 + b * 0.4) }
-      ];
-      volLayers.forEach(function(layer){
-        var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, layer.r);
-        g.addColorStop(0, 'rgba(224,112,90,' + layer.a.toFixed(3) + ')');
-        g.addColorStop(1, 'rgba(224,112,90,0)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, layer.r, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
-      });
-
-      /* 2. 中心瞳孔核心（随呼吸轻微脉动） */
-      var coreR = 26 + b * 14;
-      var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 3);
-      core.addColorStop(0, 'rgba(255,248,238,' + (0.85 * (0.7 + b * 0.3)).toFixed(3) + ')');
-      core.addColorStop(0.4, 'rgba(224,112,90,' + (0.35 * (0.7 + b * 0.3)).toFixed(3) + ')');
-      core.addColorStop(1, 'rgba(224,112,90,0)');
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreR * 3, 0, Math.PI * 2);
-      ctx.fillStyle = core;
-      ctx.fill();
-
-      /* 3. 螺旋粒子：随呼吸做聚合-发散，带层次 */
-      particles.forEach(function(p){
-        var angle = p.baseAngle + now * p.rotSpeed;
-        // 呼吸时半径整体缩放：发散时半径增大，聚合时缩小
-        var radius = p.baseRadius * (0.75 + b * 0.55);
-        var x = cx + Math.cos(angle) * radius;
-        var y = cy + Math.sin(angle) * radius * 0.82;  // 纵向略压扁，形成彗星椭圆
-
-        // 层次：内层粒子更亮，外层更暗
-        var k = 1 - (p.baseRadius / 200);   // 内层 k 大（亮），外层 k 小（暗）
-        var col = logoColor(0.3 + k * 0.6);
-        // 闪烁 + 呼吸叠加
-        var flicker = 0.5 + 0.5 * Math.sin(now * 0.002 + p.phase);
-        var a = (0.25 + 0.45 * k) * (0.5 + 0.5 * flicker);
-
-        var g = ctx.createRadialGradient(x, y, 0, x, y, p.r * 5);
-        g.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')');
-        g.addColorStop(1, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0)');
-        ctx.beginPath();
-        ctx.arc(x, y, p.r * 5, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(x, y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,244,230,' + (a * 0.85).toFixed(3) + ')';
-        ctx.fill();
-      });
-
-      /* 4. 稀疏星尘（克制：少量、极淡） */
-      for(var d = 0; d < 24; d++){
-        var dx = (d * 137.5 + now * 0.01) % W;
-        var dy = (d * 251.7 + Math.sin(now * 0.0008 + d) * 40) % H;
-        var da = 0.12 + 0.1 * Math.sin(now * 0.002 + d * 1.7);
-        ctx.beginPath();
-        ctx.arc(dx, dy, 0.8, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(245,235,220,' + Math.max(0, da).toFixed(3) + ')';
-        ctx.fill();
-      }
-
-      requestAnimationFrame(draw);
+    /* 优先读取云端 projects 表（公开可读） */
+    function loadCloud(){
+      var cloud = window.wbCloud;
+      if(!cloud || !cloud.database){ loadLocal(); return; }
+      try{
+        cloud.database
+          .from('projects')
+          .select('id,title,data_url,type,sort_order,created_at')
+          .order('sort_order', { ascending: true })
+          .order('created_at', { ascending: false })
+          .then(function(res){
+            if(res && !res.error && res.data && res.data.length){
+              render(res.data.map(function(r){
+                return { title: r.title, dataUrl: r.data_url, type: r.type };
+              }), true);
+            } else {
+              loadLocal();
+            }
+          })
+          .catch(function(){ loadLocal(); });
+      }catch(e){ loadLocal(); }
     }
-    requestAnimationFrame(draw);
+
+    loadCloud();
   })();
 })();
 </script>
