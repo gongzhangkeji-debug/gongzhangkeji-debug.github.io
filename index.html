@@ -62,9 +62,10 @@
   /* 顶部粒子光效画布（背景） */
   #particleCanvas{
     position:absolute;inset:0;width:100%;height:100%;
-    pointer-events:none;z-index:0;
+    pointer-events:none;z-index:3;
   }
   .hero-inner{width:100%;position:relative;z-index:1;}
+  /* 粒子位于文字之上（仅光点飘过，不挡交互） */
   .hero h1{
     font-size:clamp(34px,6vw,62px);font-weight:700;line-height:1.12;
     letter-spacing:-.02em;margin-bottom:24px;max-width:14em;
@@ -1061,58 +1062,56 @@
     loadCloud();
   })();
 
-  /* ============ 顶部粒子光效：篝火火星向上飞舞 + 光晕音波起伏 ============ */
+  /* ============ 顶部粒子光效：光斑自由漂浮 + 经过时吸引周围粒子 ============ */
   (function initParticles(){
     var canvas = document.getElementById('particleCanvas');
     if(!canvas) return;
     var ctx = canvas.getContext('2d');
-    var W, H, cx, cy, lastNow = 0;
+    var W, H, lastNow = 0;
+    var cxs = 0, cys = 0;                 /* 光斑实时位置 */
 
     function resize(){
       var hero = canvas.parentElement;
       W = canvas.width = hero.offsetWidth;
       H = canvas.height = hero.offsetHeight;
-      cx = W * 0.30;
-      cy = H * 0.42;
+      cxs = W * 0.5; cys = H * 0.45;
     }
     resize();
     window.addEventListener('resize', resize);
 
-    /* Logo 同族配色：深赭红 → 橙红 → 暖白；并混入更红的火星色 */
+    /* Logo 同族配色，偏红 */
     var PALETTE = [
-      [201, 84, 66],    /* 偏红（logo 深赭红） */
-      [224, 112, 90],   /* logo 主橙红 */
-      [233, 130, 96],   /* 亮橙 */
-      [255, 226, 198]   /* 暖白高光 */
+      [201, 84, 66],
+      [224, 112, 90],
+      [233, 130, 96],
+      [255, 226, 198]
     ];
 
-    /* ---------- 篝火火星：从下向上飞舞 ---------- */
+    /* ---------- 火星：受光斑吸引、也会自行上浮 ---------- */
     function newSpark(initial){
-      var nearCore = Math.random() < 0.72;
-      var x = nearCore ? (cx + (Math.random() - 0.5) * W * 0.52) : (Math.random() * W);
-      var y = initial ? (H * 0.42 + Math.random() * H * 0.58) : (H * 0.94 + Math.random() * H * 0.10);
+      var x = Math.random() * W;
+      var y = Math.random() * H;
       return {
         x: x, y: y,
-        vy: -(0.026 + Math.random() * 0.045),      /* px/ms 上升 */
-        swayA: 0.5 + Math.random() * 1.5,
-        swayS: 0.0011 + Math.random() * 0.0015,
-        phase: Math.random() * Math.PI * 2,
-        r: 0.7 + Math.random() * 1.3,
-        life: initial ? Math.random() * 0.85 : 0,
-        lifeS: 0.00022 + Math.random() * 0.00026,
-        ci: Math.floor(Math.random() * PALETTE.length)
+        vx: (Math.random() - 0.5) * 0.020,
+        vy: -(0.012 + Math.random() * 0.028),
+        r: 0.7 + Math.random() * 1.4,
+        life: initial ? Math.random() * 0.9 : 0,
+        lifeS: 0.00007 + Math.random() * 0.00010,
+        ci: Math.floor(Math.random() * PALETTE.length),
+        pulled: 0
       };
     }
     var sparks = [];
-    var SPARK_N = 34;                                /* 数量克制 */
+    var SPARK_N = 90;
     for(var i = 0; i < SPARK_N; i++){ sparks.push(newSpark(true)); }
 
-    /* ---------- 少量螺旋粒子：贴近光斑内部缓慢环绕 ---------- */
+    /* ---------- 光斑内部螺旋粒子 ---------- */
     var spiral = [];
-    for(var j = 0; j < 24; j++){
+    for(var j = 0; j < 40; j++){
       spiral.push({
         angle: Math.random() * Math.PI * 2,
-        radius: 26 + Math.random() * 90,
+        radius: 26 + Math.random() * 92,
         rotSpeed: 0.0016 + Math.random() * 0.0018,
         r: 0.7 + Math.random() * 1.2,
         phase: Math.random() * Math.PI * 2,
@@ -1120,7 +1119,7 @@
       });
     }
 
-    /* ---------- 弥散柔雾：更少更淡 ---------- */
+    /* ---------- 弥散柔雾 ---------- */
     var mists = [];
     for(var m = 0; m < 4; m++){
       mists.push({
@@ -1133,23 +1132,29 @@
       });
     }
 
-    /* ---------- 音波环：从光斑向外扩散、衰减 ---------- */
+    /* ---------- 音波环 ---------- */
     var rings = [];
     for(var k = 0; k < 3; k++){
       rings.push({ r: 34 + k * 36, speed: 0.020, seed: Math.random() * 6.283 });
     }
 
-    /* 呼吸（保持较快节奏） */
-    function breath(now){ return 0.5 + 0.5 * Math.sin(now * 0.00105); }
+    function breath(now){ return 0.5 + 0.5 * Math.sin(now * 0.0022); }
 
     function draw(now){
       var dt = lastNow ? Math.min(now - lastNow, 48) : 16;
       lastNow = now;
       ctx.clearRect(0, 0, W, H);
       var b = breath(now);
-      var coreR = 34 + b * 10;
 
-      /* 0. 弥散柔雾（极淡） */
+      /* 光斑自由漂浮：两组不同频率的正弦叠加，缓慢游走且不出界 */
+      var nx = 0.5 + 0.33 * Math.sin(now * 0.000105) + 0.11 * Math.sin(now * 0.000243 + 1.3);
+      var ny = 0.46 + 0.26 * Math.sin(now * 0.000142 + 1.7) + 0.09 * Math.sin(now * 0.000318 + 0.4);
+      cxs = Math.max(W * 0.16, Math.min(W * 0.84, nx * W));
+      cys = Math.max(H * 0.20, Math.min(H * 0.72, ny * H));
+
+      var coreR = 34 + b * 26;
+
+      /* 0. 弥散柔雾 */
       mists.forEach(function(mt){
         mt.x += mt.vx; mt.y += mt.vy; mt.phase += 0.0005;
         if(mt.y < -0.3){ mt.y = 1.25; mt.x = Math.random(); }
@@ -1164,53 +1169,54 @@
         ctx.fillStyle = g; ctx.fill();
       });
 
-      /* 1. 光斑本体：形态随呼吸起伏（不规则轮廓填充） */
-      var coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.4);
-      coreGrad.addColorStop(0, 'rgba(255,244,226,' + (0.52 * (0.72 + b * 0.28)).toFixed(3) + ')');
-      coreGrad.addColorStop(0.30, 'rgba(224,112,90,' + (0.22 * (0.72 + b * 0.28)).toFixed(3) + ')');
+      /* 1. 光斑本体：不规则形态 + 强呼吸 */
+      var coreGrad = ctx.createRadialGradient(cxs, cys, 0, cxs, cys, coreR * 1.65);
+      coreGrad.addColorStop(0, 'rgba(255,248,236,' + (0.74 * (0.62 + b * 0.38)).toFixed(3) + ')');
+      coreGrad.addColorStop(0.30, 'rgba(230,116,92,' + (0.34 * (0.62 + b * 0.38)).toFixed(3) + ')');
       coreGrad.addColorStop(1, 'rgba(201,84,66,0)');
       ctx.beginPath();
       for(var a0 = 0; a0 <= Math.PI * 2 + 0.12; a0 += 0.12){
-        var rr0 = coreR * 2.4 * (1
+        var rr0 = coreR * 1.65 * (1
           + 0.10 * Math.sin(a0 * 3 + now * 0.0011)
           + 0.06 * Math.sin(a0 * 5 - now * 0.0008));
-        var px0 = cx + Math.cos(a0) * rr0;
-        var py0 = cy + Math.sin(a0) * rr0 * 0.90;
+        var px0 = cxs + Math.cos(a0) * rr0;
+        var py0 = cys + Math.sin(a0) * rr0 * 0.90;
         if(a0 === 0) ctx.moveTo(px0, py0); else ctx.lineTo(px0, py0);
       }
       ctx.closePath();
       ctx.fillStyle = coreGrad;
       ctx.fill();
 
-      /* 2. 音波环：向外扩散并衰减，环身也带起伏 */
+      /* 2. 音波环 */
       rings.forEach(function(rg){
         rg.r += rg.speed * dt * 0.06;
         if(rg.r > 168){ rg.r = 30 + Math.random() * 10; rg.seed = Math.random() * 6.283; }
         var lifeP = Math.min(1, (rg.r - 28) / 140);
-        var alpha = 0.28 * (1 - lifeP) * (0.55 + 0.45 * b);
+        var alpha = 0.46 * (1 - lifeP) * (0.45 + 0.55 * b);
         if(alpha <= 0.005) return;
         ctx.beginPath();
         for(var a1 = 0; a1 <= Math.PI * 2 + 0.14; a1 += 0.14){
           var wob = 1 + 0.055 * Math.sin(a1 * 4 + now * 0.0022 + rg.seed)
                       + 0.030 * Math.sin(a1 * 7 - now * 0.0016);
-          var px1 = cx + Math.cos(a1) * rg.r * wob;
-          var py1 = cy + Math.sin(a1) * rg.r * wob * 0.90;
+          var px1 = cxs + Math.cos(a1) * rg.r * wob;
+          var py1 = cys + Math.sin(a1) * rg.r * wob * 0.90;
           if(a1 === 0) ctx.moveTo(px1, py1); else ctx.lineTo(px1, py1);
         }
         ctx.closePath();
-        ctx.strokeStyle = 'rgba(255,168,132,' + alpha.toFixed(3) + ')';
+        ctx.strokeStyle = 'rgba(255,170,136,' + alpha.toFixed(3) + ')';
         ctx.lineWidth = 1.3;
         ctx.stroke();
       });
 
-      /* 3. 光斑内部少量螺旋粒子（靠近者更亮） */
+      /* 3. 光斑内部螺旋粒子（跟随光斑移动） */
       spiral.forEach(function(p){
         p.angle += p.rotSpeed * dt;
         p.radius += Math.sin(now * 0.0008 + p.phase) * 0.06;
-        var x = cx + Math.cos(p.angle) * p.radius * (0.9 + b * 0.18);
-        var y = cy + Math.sin(p.angle) * p.radius * 0.82 * (0.9 + b * 0.18);
+        var sc = 0.76 + b * 0.46;
+        var x = cxs + Math.cos(p.angle) * p.radius * sc;
+        var y = cys + Math.sin(p.angle) * p.radius * 0.82 * sc;
         var col = PALETTE[p.ci];
-        var near = 1 - Math.min(1, p.radius / 130);          /* 越靠近核心越亮 */
+        var near = 1 - Math.min(1, p.radius / 130);
         var a = (0.22 + 0.42 * near) * (0.75 + 0.25 * Math.sin(now * 0.003 + p.phase));
         var g = ctx.createRadialGradient(x, y, 0, x, y, p.r * 2.6);
         g.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')');
@@ -1222,30 +1228,66 @@
         ctx.fill();
       });
 
-      /* 4. 篝火火星：自下而上飞舞、渐隐（靠近光斑更亮） */
+      /* 4. 火星：光斑经过时被吸引 */
+      var ATTR_R = W * 0.34;             /* 吸引半径 */
       for(var si = 0; si < sparks.length; si++){
         var sp = sparks[si];
-        sp.life += sp.lifeS * dt;
+        var dxc = cxs - sp.x, dyc = cys - sp.y;
+        var d = Math.sqrt(dxc * dxc + dyc * dyc) || 1;
+
+        if(d < 105){
+          /* 贴近光斑：转为切向环绕，形成清晰的“被吸住打转” */
+          var tx = -dyc / d, ty = dxc / d;
+          var orbV = 0.075;
+          var ko = Math.min(1, 0.0065 * dt);
+          sp.vx += (tx * orbV - sp.vx) * ko;
+          sp.vy += (ty * orbV - sp.vy) * ko;
+          sp.pulled = Math.min(1, sp.pulled + 0.05 * dt);
+        } else if(d < ATTR_R){
+          var f = 1 - d / ATTR_R;                    /* 越近引力越强 */
+          var pullV = 0.020 + 0.130 * f;
+          var tvx = (dxc / d) * pullV;
+          var tvy = (dyc / d) * pullV;
+          var k = Math.min(1, 0.0045 * dt);
+          sp.vx += (tvx - sp.vx) * k;
+          sp.vy += (tvy - sp.vy) * k;
+          sp.pulled = Math.min(1, sp.pulled + 0.03 * f * dt);
+        } else {
+          sp.pulled *= 0.985;
+        }
+
+        sp.vy -= 0.000008 * dt;                       /* 极轻微上浮 */
+        sp.vx *= 0.995; sp.vy *= 0.995;               /* 阻尼 */
+
+        var spd = Math.sqrt(sp.vx * sp.vx + sp.vy * sp.vy);
+        var MAXV = 0.22;
+        if(spd > MAXV){ sp.vx = sp.vx / spd * MAXV; sp.vy = sp.vy / spd * MAXV; }
+
+        sp.x += sp.vx * dt;
         sp.y += sp.vy * dt;
-        sp.x += Math.sin(now * sp.swayS + sp.phase) * sp.swayA * 0.06;
-        if(sp.life >= 1 || sp.y < H * 0.14){ sparks[si] = newSpark(false); sp = sparks[si]; }
+        sp.life += sp.lifeS * dt * (1 - sp.pulled * 0.55);   /* 被吸住时更快被"吞噬" */
+
+        var out = (sp.x < -30 || sp.x > W + 30 || sp.y < -30 || sp.y > H + 40);
+        if(sp.life >= 1 || out){
+          sparks[si] = newSpark(false); sp = sparks[si];
+        }
 
         var env = Math.sin(Math.PI * Math.min(sp.life, 1));
-        var dx = Math.abs(sp.x - cx), dy = Math.abs(sp.y - cy);
-        var prox = 1 - Math.min(1, Math.sqrt(dx * dx + dy * dy) / (W * 0.46));
+        var prox = 1 - Math.min(1, d / (W * 0.55));
         prox = Math.max(0.18, prox);
-        var sa = 0.62 * env * env * prox;                    /* 整体压低，更暗更稀 */
+        var sa = (0.55 + 0.62 * sp.pulled) * env * prox * 1.15;
         if(sa <= 0.008) continue;
+
         var scol = PALETTE[sp.ci];
-        var sr = sp.r * (1 - sp.life * 0.45);
-        var g2 = ctx.createRadialGradient(sp.x, sp.y, 0, sp.x, sp.y, sr * 3.2);
+        var sr = sp.r * (1 - sp.life * 0.4);
+        var g2 = ctx.createRadialGradient(sp.x, sp.y, 0, sp.x, sp.y, sr * 3.4);
         g2.addColorStop(0, 'rgba(' + scol[0] + ',' + scol[1] + ',' + scol[2] + ',' + sa.toFixed(3) + ')');
         g2.addColorStop(0.45, 'rgba(' + scol[0] + ',' + scol[1] + ',' + scol[2] + ',' + (sa * 0.3).toFixed(3) + ')');
         g2.addColorStop(1, 'rgba(' + scol[0] + ',' + scol[1] + ',' + scol[2] + ',0)');
-        ctx.beginPath(); ctx.arc(sp.x, sp.y, sr * 3.2, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.arc(sp.x, sp.y, sr * 3.4, 0, Math.PI * 2);
         ctx.fillStyle = g2; ctx.fill();
         ctx.beginPath(); ctx.arc(sp.x, sp.y, sr * 0.85, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,246,236,' + (sa * 1.5 > 1 ? 1 : sa * 1.5).toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(255,246,236,' + Math.min(1, sa * 1.5).toFixed(3) + ')';
         ctx.fill();
       }
 
