@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FAF7F2">
+<title>张协恒 · 作品集手册</title>
+<style>
+  :root{
+    --paper:#FAF7F2; --ink:#2B2E33; --ink2:#5C6672; --ink3:#8A929C;
+    --accent:#C0604A; --line:#E6DFD3; --code-bg:#F1ECE3;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{overflow-x:hidden;background:var(--paper);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16px;line-height:1.78;-webkit-text-size-adjust:100%;}
+  .top{position:sticky;top:0;z-index:9;background:rgba(250,247,242,.94);
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 10px) 0 0;}
+  .brand{padding:0 20px 8px;font-size:13px;color:var(--ink3);letter-spacing:.04em;}
+  .tabs{display:flex;gap:6px;padding:0 14px 10px;overflow-x:auto;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{flex:0 0 auto;min-height:38px;padding:0 16px;border-radius:999px;
+    background:#F1ECE3;color:var(--ink2);font-size:14px;border:1px solid transparent;
+    transition:all .18s ease;white-space:nowrap;}
+  .tab.on{background:var(--accent);color:#fff;}
+  .tab:active{transform:scale(.96);}
+  .doc{display:none;padding:22px 20px calc(env(safe-area-inset-bottom) + 60px);max-width:760px;margin:0 auto;}
+  .doc.on{display:block;}
+  h1{font-size:24px;line-height:1.35;margin:6px 0 18px;font-weight:700;letter-spacing:-.01em;}
+  h2{font-size:19px;margin:34px 0 12px;padding-top:14px;border-top:1px solid var(--line);font-weight:700;}
+  h2:first-of-type{border-top:0;padding-top:0;}
+  h3{font-size:16.5px;margin:22px 0 8px;font-weight:650;color:#1F2226;}
+  p{margin:10px 0;color:var(--ink2);}
+  b{color:var(--ink);font-weight:650;}
+  i{color:var(--accent);font-style:normal;}
+  blockquote{margin:14px 0;padding:12px 16px;background:#F5F0E7;
+    border-left:3px solid var(--accent);border-radius:0 10px 10px 0;}
+  blockquote p{margin:4px 0;color:#4A525C;}
+  ul,ol{margin:10px 0 10px 22px;color:var(--ink2);}
+  li{margin:6px 0;}
+  ul.chk{list-style:none;margin-left:2px;}
+  ul.chk li{display:flex;gap:8px;align-items:flex-start;}
+  .box{color:var(--accent);font-size:17px;line-height:1.5;}
+  hr{border:0;border-top:1px solid var(--line);margin:26px 0;}
+  code{background:var(--code-bg);padding:1px 6px;border-radius:5px;
+    font-size:13.5px;font-family:ui-monospace,Menlo,Consolas,monospace;color:#8A4B3A;}
+  pre{background:#2B2E33;color:#E8E3DA;padding:14px 16px;border-radius:12px;
+    overflow-x:auto;margin:14px 0;font-size:13px;line-height:1.6;}
+  pre code{background:none;color:inherit;padding:0;}
+  .tw{overflow-x:auto;margin:14px 0;-webkit-overflow-scrolling:touch;}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:420px;}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;}
+  th{background:#F1ECE3;font-weight:650;color:var(--ink);white-space:nowrap;}
+  td{color:var(--ink2);}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">张协恒 · 作品集手册</div>
+  <div class="tabs" id="tabs"><button class="tab" data-key="talk">面试话术</button><button class="tab" data-key="retro">项目复盘</button><button class="tab" data-key="guide">建站指南</button></div>
+</div>
+<section class="doc" id="doc-talk" data-key="talk"><h1>面试话术整理版 · 张协恒</h1>
+<blockquote>
+<p><b>核心武器</b>：数据 + 方法论 + 完整闭环。</p>
+<p>不是&quot;大厂实习&quot;，而是&quot;能独立跑通一条链路的证据&quot;。</p>
+<p>使用方式：先看「数据速查卡」把数字背熟，再看四个模块的完整话术。</p>
+</blockquote>
+<hr>
+<h2>一、数据速查卡（开场前 30 秒看一遍）</h2>
+<div class="tw"><table><thead><tr><th>数据</th><th>含义</th><th>用在哪</th></tr></thead><tbody>
+<tr><td><b>7.8pp</b></td><td>「练后闭环」方案次日留存提升 7.8 个百分点</td><td>自我介绍、小悦项目</td></tr>
+<tr><td><b>10,000</b></td><td>AI 合成用户规模（模拟 AB 测试）</td><td>自我介绍、验证方法论</td></tr>
+<tr><td><b>7.7%→91.5%</b></td><td>品牌关注率提升（600 虚拟人 × 12 智能体 × 6 轮实验）</td><td>品牌项目、证明验证能力</td></tr>
+<tr><td><b>49 篇 + 15 份</b></td><td>全网内容调研 + 问卷</td><td>用户研究深度</td></tr>
+<tr><td><b>10 位</b></td><td>深度访谈用户数</td><td>用户研究深度</td></tr>
+<tr><td><b>6 处</b></td><td>竞品行为断裂点（Keep × 每日瑜伽）</td><td>竞品拆解项目</td></tr>
+<tr><td><b>3 个项目</b></td><td>小悦 / 心域航线 / 硅元陶瓷 + 竞品报告</td><td>作品广度</td></tr>
+</tbody></table></div>
+<blockquote>
+<p>记忆口诀：<b>「一个闭环、两个验证、三个项目」</b></p>
+<p>一个闭环 = 小悦从洞察到落地；两个验证 = AI 合成用户验证 + 品牌虚拟人验证；三个项目 = 行为干预 / 品牌 / B端复盘。</p>
+</blockquote>
+<hr>
+<h2>二、开场自我介绍（30 秒版，每个面试必用）</h2>
+<blockquote>
+<p>&quot;我叫张协恒，齐鲁工业大学艺术设计专业，辅修心理学。我的定位是——<b>用心理学洞察 + 行为设计 + AI 工具，把产品方案做成一整个可验证的闭环</b>。</p>
+</blockquote>
+<blockquote>
+<p>最有代表性的作品是「小悦 AI 健身 App」。我从 10 位用户访谈和竞品 B=MAP 拆解开始，定位到身材焦虑用户的核心矛盾是「想练但难坚持」；然后用 <b>1 万名 AI 合成用户做 AB 测试</b>，验证「练后闭环引导」能把次日留存提升 <b>7.8 个百分点</b>；最后把它落地成一个能跑的高保真 H5 和扣子 Agent。</p>
+</blockquote>
+<blockquote>
+<p>另外我用 600 个虚拟人做了品牌命名和 Logo 的验证，把关注率从 <b>7.7% 做到 91.5%</b>。这些都能在我的作品集网站上直接看到。&quot;</p>
+</blockquote>
+<p><b>要点</b>：30 秒内抛出三个数据 + &quot;完整闭环&quot;这四个字。面试官立刻知道你和别人不一样。</p>
+<hr>
+<h2>三、三个必问问题的标准回答</h2>
+<h3>Q1：你为什么没有去互联网公司实习？（准备度 ★★★★★）</h3>
+<blockquote>
+<p>&quot;我认真考虑过。对产品经理来说，<b>独立思考和闭环落地能力，比做大厂的一颗螺丝钉更重要</b>。所以我把大学时间投在两件事：一是构建心理学的底层认知体系，二是自己跑通一条完整链路——从用户洞察、竞品拆解，到 AI 合成用户的数据验证，再到 H5 代码落地。</p>
+</blockquote>
+<blockquote>
+<p>我没有大厂实习，但我有<b>可以直接上线的独立作品</b>。这让我入职后能更快上手，而不是从打杂开始。&quot;</p>
+</blockquote>
+<p><b>要点</b>：不回避、不辩解，把&quot;无实习&quot;直接翻译成&quot;独立操盘能力&quot;。</p>
+<hr>
+<h3>Q2：调酒师学徒这段经历，跟做产品有什么关系？（主动讲，加分项）</h3>
+<blockquote>
+<p>&quot;那段经历帮我理解了真实用户。调酒是高压、强互动的服务场景，我观察到一件事——<b>顾客记住的往往不是酒本身，而是最后那一下的体验</b>，这就是峰终定律。它直接影响了我后来做用户访谈和设计「庆祝机制」的思路：用户对产品的评价取决于峰值和结尾，而不是平均体验。&quot;</p>
+</blockquote>
+<p><b>要点</b>：把不起眼的兼职拔高到行为设计理论，展现&quot;处处是产品观察&quot;的素养。</p>
+<hr>
+<h3>Q3：你 SQL 和 AB 测试是自学的，是不是不太熟练？（诚实但有底气）</h3>
+<blockquote>
+<p>&quot;对，我的 SQL 和 AB 测试是自学的，没有跑过真实生产数据，这点我不回避。但我做了一张<b>学习自查表</b>，把 AB 测试的判断逻辑和流程系统梳理过。</p>
+</blockquote>
+<blockquote>
+<p>更重要的是，我用<b>另一种方式补上了数据验证能力</b>——读了前沿论文，用 1 万名 AI 合成用户跑了一次模拟 AB 测试，产出了完整分析报告。所以我知道怎么提假设、怎么定义指标、怎么看显著性，只是缺真实流量环境。&quot;</p>
+</blockquote>
+<p><b>要点</b>：承认短板 → 说明补救动作 → 展现学习能力。这是&quot;把不熟练转成会补短板&quot;的范本。</p>
+<hr>
+<h2>四、小悦项目深挖（王牌项目，必被追问）</h2>
+<h3>Q：1 万名 AI 合成用户怎么模拟的？靠不靠谱？</h3>
+<blockquote>
+<p>&quot;我参考了 CHI / ACL 上「用 LLM 智能体模拟用户做 AB 测试」的论文方法。核心是：给每个合成用户设定人格属性（动机强弱、焦虑水平、时间预算），让它们分别在方案 A（练后闭环）和方案 B（无闭环）下模拟完整用户旅程，统计次日留存行为。为控制偏差，我做了人格分层和多次抽样。</p>
+</blockquote>
+<blockquote>
+<p>我很清楚<b>这不是真实数据、不能替代真实验证</b>——它的价值是：在冷启动、没有流量时，用极低成本把方案风险前置验证掉，判断方向对不对。这本身就是精益 MVP 的思路。&quot;</p>
+</blockquote>
+<p><b>要点</b>：主动说明&quot;这是前置验证、不是替代真实验证&quot;，反而证明你懂数据边界。</p>
+<h3>Q：7.8pp 这个数字怎么来的？口径是什么？</h3>
+<blockquote>
+<p>&quot;是方案 A 相对基线（无闭环引导）的次日留存率差值，7.8 个百分点。在 1 万名合成用户、按人格分层抽样、重复多轮的模拟下得到。我保留了完整分析报告，里面有指标定义和计算过程，可以展开看。&quot;</p>
+</blockquote>
+<h3>Q：为什么选身材焦虑这个人群？</h3>
+<blockquote>
+<p>&quot;因为它同时满足三个条件：需求真实且高频（想练）、痛点明确（难坚持）、现有产品没解决（Keep 靠打卡，缺练后闭环）。人群聚焦才能把行为模型拆得足够深，而不是泛泛谈&#x27;健身用户&#x27;。&quot;</p>
+</blockquote>
+<h3>通用技巧：任何&quot;数据怎么来的&quot;追问</h3>
+<p>固定三段式回答：</p>
+<ol>
+<li><b>口径</b>：这个数字的定义是什么</li>
+<li><b>方法</b>：怎么算出来的、控制了什么偏差</li>
+<li><b>边界</b>：它不能说明什么</li>
+</ol>
+<hr>
+<h2>五、作品集讲解模板（现场打开网站时用，90 秒）</h2>
+<blockquote>
+<p>&quot;这是我用 WorkBuddy 从零搭的作品集，不是套模板。</p>
+</blockquote>
+<blockquote>
+<p><b>首页</b>用粒子光效做氛围——那是一个会自己漂浮的光斑，飘过时会把周围的光点吸过去转一圈，呼应我做&#x27;用户行为牵引&#x27;的思路。</p>
+</blockquote>
+<blockquote>
+<p><b>往下是四个项目</b>：行为干预、品牌验证、B端复盘、竞品拆解，每个都能点开看完整报告或可交互原型。</p>
+</blockquote>
+<blockquote>
+<p><b>页面底部</b>有 1 分 45 秒的 App 演示视频，可以直接拖进度条看任意片段。</p>
+</blockquote>
+<blockquote>
+<p>我特意做了<b>移动端适配</b>：手机上会自动进移动版，详情用底部抽屉滑出，单手就能操作——因为我知道面试官可能就是在通勤路上点开这个链接的。&quot;</p>
+</blockquote>
+<p><b>这段的价值</b>：把&quot;技术实现&quot;翻译成&quot;用户视角的体贴&quot;，而不是炫耀代码。</p>
+<hr>
+<h2>六、反问环节（准备 3 个，显示你在认真选公司）</h2>
+<ol>
+<li>&quot;这个岗位现在最急需解决的<b>一个</b>问题是什么？我入职前三个月，您希望我先把哪件事做成？&quot;</li>
+<li>&quot;团队现在做决策，主要靠数据验证还是经验判断？有没有做过 AB 测试？&quot;</li>
+<li>&quot;如果我进来，会是从 0 到 1 做新方向，还是在成熟产品上做优化？&quot;</li>
+</ol>
+<p><b>避免问</b>：薪资、加班、转正比例（等 HR 环节再问）。</p>
+<hr>
+<h2>七、临场应急卡</h2>
+<div class="tw"><table><thead><tr><th>情况</th><th>应对</th></tr></thead><tbody>
+<tr><td>被问到不会的技术细节</td><td>&quot;这块我确实没深入做过，我的理解是……（说出你知道的部分），回去我会补这块。&quot;</td></tr>
+<tr><td>被质疑&quot;AI 合成用户不真实&quot;</td><td>&quot;您说得对，它不能替代真实流量。它的定位是冷启动期把方向性错误排除掉，正式上线还是要跑真实 AB。&quot;</td></tr>
+<tr><td>被问&quot;作品是不是 AI 做的&quot;</td><td>&quot;框架和判断是我定的，AI 帮我加速执行。比如这个网站，需求、结构、每一步改什么都是我决策的，AI 负责写代码和验证。&quot;</td></tr>
+<tr><td>冷场</td><td>主动打开作品集：&quot;要不我挑一个项目，用两分钟讲一下我当时的决策过程？&quot;</td></tr>
+</tbody></table></div>
+<hr>
+<h2>八、面试前 10 分钟检查清单</h2>
+<ul class="chk">
+<li><span class="box">☐</span>手机能打开 <code>gongzhangkeji-debug.github.io/m</code></li>
+<li><span class="box">☐</span>电脑能打开桌面版，粒子动效正常</li>
+<li><span class="box">☐</span>视频能播放、进度条能拖</li>
+<li><span class="box">☐</span>四个项目详情页都能打开（PDF 能加载）</li>
+<li><span class="box">☐</span>简历 PDF 能下载</li>
+<li><span class="box">☐</span>数据速查卡的 7 个数字能背出来</li>
+<li><span class="box">☐</span>自我介绍能控制在 30 秒内说完</li>
+</ul></section>
+<section class="doc" id="doc-retro" data-key="retro"><h1>项目复盘 · 这一路遇到的难题与思考</h1>
+<blockquote>
+<p>时间跨度：2026-11-16 深夜 → 2026-11-17 凌晨</p>
+<p>项目：个人作品集网站（桌面端 + 移动端 + 云服务）</p>
+<p>这份文档记录的是<b>真实踩过的坑</b>，以及每个坑背后的判断逻辑。</p>
+</blockquote>
+<hr>
+<h2>一、九个真实难题</h2>
+<h3>难题 1：视频进度条拖不动（最大的一次误判）</h3>
+<p><b>现象</b>：视频能播放，但拖动进度条后松手会跳回开头。桌面、手机、不同域名都一样。</p>
+<p><b>我最初的错误判断</b>：以为是前端代码问题，于是反复改：</p>
+<ul>
+<li>换封面实现（自定义 div → 移除）</li>
+<li>改 <code>preload</code>（metadata → auto → metadata）</li>
+<li>改容器比例（<code>aspect-ratio</code> → <code>padding-top</code>）</li>
+<li>去掉 <code>fade-up</code> 动画的 transform 干扰</li>
+</ul>
+<p><b>结果</b>：改了四轮，用户每次都说&quot;还是拖不动&quot;。</p>
+<p><b>转折点</b>：用户查到资料，说这可能是服务器不支持 HTTP Range 请求。我用 <code>curl</code> 逐平台实测，结果一目了然：</p>
+<div class="tw"><table><thead><tr><th>环境</th><th>响应</th><th>能否拖动</th></tr></thead><tbody>
+<tr><td>GitHub Pages</td><td><code>206 Partial Content</code> + 1024 字节</td><td>✅</td></tr>
+<tr><td>WorkBuddy 发布</td><td><code>200</code> + 完整 3.7MB</td><td>❌</td></tr>
+<tr><td>本地预览服务</td><td><code>200</code> + 完整 3.7MB</td><td>❌</td></tr>
+<tr><td>Cloudflare workers.dev</td><td>打不开（国内不可达）</td><td>—</td></tr>
+</tbody></table></div>
+<p><b>真正的根因</b>：不是代码，是<b>托管平台是否实现 HTTP Range 分段请求</b>。拖进度条时浏览器会发 <code>Range: bytes=X-Y</code>，服务器如果只会返回整个文件，浏览器就拿不到&quot;那一小段&quot;，于是回退到开头。</p>
+<p><b>最终方案（前端可以彻底绕过）</b>：</p>
+<ol>
+<li>页面加载时先发一个试探请求（<code>Range: bytes=0-1</code>，拿到状态码立刻 abort，不浪费流量）</li>
+<li>若是 <code>206</code> → 正常流式播放</li>
+<li>若是 <code>200</code> → 说明服务器不支持分段，在用户第一次交互时<b>把整个视频下载成 Blob</b>，用 <code>URL.createObjectURL(blob)</code> 作为播放源</li>
+<li>本地 Blob 不需要向服务器要分段数据，<b>进度条从此任意拖动</b></li>
+</ol>
+<p><b>教训</b>：</p>
+<blockquote>
+<p><b>先确定问题归属在哪一层，再改代码。</b></p>
+<p>前端 → 服务器 → 域名/网络，三层要逐层排除。我一开始就在前端反复改，浪费了四轮迭代。一个 <code>curl -H &quot;Range: bytes=0-1023&quot;</code> 就能定位。</p>
+</blockquote>
+<hr>
+<h3>难题 2：Cloudflare 部署反复走错入口</h3>
+<p><b>现象</b>：连续四次进入的都是 <b>Worker</b> 创建流程，而不是 <b>Pages</b>。</p>
+<p><b>为什么会错</b>：Cloudflare 新版把 Workers 和 Pages 合并到同一个入口，默认落在 Worker 上。Worker 的配置页有 <code>npx wrangler deploy</code> 这种字段——<b>看到这个字段就说明走错了</b>。</p>
+<p><b>正确路径</b>（查官方文档确认）：</p>
+<pre><code>Workers &amp; Pages → Create application → 选 Pages 标签 → Connect to Git</code></pre>
+<p>或用直链 <code>dash.cloudflare.com/?to=/:account/workers-and-pages</code>。</p>
+<p><b>识别口诀</b>：</p>
+<ul>
+<li>看到「框架预设 / 构建命令 / 构建输出目录」→ <b>Pages</b></li>
+<li>看到「npx wrangler deploy / 预览命令」→ <b>Worker</b>（走错了）</li>
+</ul>
+<p><b>还踩过一个坑</b>：连接 Git 时选成了 GitLab 账号，仓库列表为空（&quot;No Git repositories found&quot;）。代码在 GitHub 上，必须选 GitHub。</p>
+<p><b>最终结论</b>：即使部署成功，<code>*.workers.dev</code> 域名在国内<b>无法访问</b>（DNS/网络层），没有自有域名+备案就走不通。于是放弃 Cloudflare，回到 GitHub Pages + 前端瘦身。</p>
+<hr>
+<h3>难题 3：国内访问慢 —— 首屏要下 10MB</h3>
+<p><b>诊断</b>：列出所有资源后发现，首屏实际要下载约 <b>10MB</b>：</p>
+<ul>
+<li>4 个隐藏弹窗里的 iframe（H5 1MB + 3 个 PDF 4.5MB）——<b>只要 <code>src</code> 写了就会立刻下载，哪怕弹窗是隐藏的</b></li>
+<li>视频 <code>preload=&quot;auto&quot;</code> 预载 3.7MB</li>
+<li>未压缩的 PNG（单张 476KB）</li>
+</ul>
+<p><b>三步优化</b>：</p>
+<ol>
+<li>iframe 的 <code>src</code> 改 <code>data-src</code>，<b>点开弹窗才赋值</b>，关闭时置 <code>about:blank</code></li>
+<li>视频 <code>preload</code> 改 <code>metadata</code>（只读头部，配合 Range 仍可拖）</li>
+<li>图片压缩：476KB→12KB、98KB→15KB、38KB→3KB（Pillow，质量 82，最大宽 900px）</li>
+</ol>
+<p><b>结果</b>：首屏 <b>10MB → 192KB</b>，提升约 50 倍。</p>
+<p><b>教训</b>：</p>
+<blockquote>
+<p>隐藏元素不等于不加载。<code>iframe</code>、<code>img</code>、<code>video</code> 只要写了 src 就会抢带宽。</p>
+<p><b>优化前先算总量</b>，不要凭感觉猜。</p>
+</blockquote>
+<hr>
+<h3>难题 4：CDN 加速反而不可用</h3>
+<p>原计划用 jsDelivr 给静态资源加速，实测 <code>cdn.jsdelivr.net</code> 在本网络下 <b>SSL 握手失败</b>（错误 35），主站 <code>jsdelivr.com</code> 却能打开——说明是 CDN 域名被限制。</p>
+<p><b>连锁影响</b>：云服务 SDK 和拖拽库默认都从 jsDelivr 加载，会直接导致功能失效。</p>
+<p><b>解决</b>：把两个依赖<b>下载到本地</b>，改成相对路径引用：</p>
+<ul>
+<li><code>sdk-cloud.js</code>（WorkBuddy 云 SDK，71KB，从 unpkg 拿到）</li>
+<li><code>sortable.min.js</code>（SortableJS，44KB）</li>
+</ul>
+<p><b>教训</b>：</p>
+<blockquote>
+<p>不要假设&quot;国外 CDN 一定能用&quot;。<b>上线前逐个资源测可达性</b>，关键依赖本地化最稳——不依赖任何第三方域名。</p>
+</blockquote>
+<hr>
+<h3>难题 5：我误删了粒子动效（自己的操作事故）</h3>
+<p><b>现象</b>：用户发现&quot;顶部粒子动效不见了&quot;。</p>
+<p><b>原因</b>：我用脚本替换首页的 <code>loadDynamicProjects</code> 函数时，用于定位结束位置的正则写错，<b>把紧跟在后面的整段粒子系统代码一起删掉了</b>。语法检查还能通过（因为删得&quot;很整齐&quot;），所以没被发现。</p>
+<p><b>修复</b>：从备份的旧版本里把粒子系统整段恢复，并重新部署。</p>
+<p><b>由此建立的制度</b>：</p>
+<ol>
+<li>改主文件前，先复制一份到 <code>历史版本/</code> 目录</li>
+<li>大段替换后，<b>必须 grep 校验关键函数是否还在</b>（<code>initParticles</code> / <code>playSound</code> / <code>fixVideoSeek</code> / <code>loadCloud</code>）</li>
+<li>所有历史版本导出成实体文件 + <code>README.md</code> 索引，可随时回滚</li>
+</ol>
+<p><b>教训</b>：</p>
+<blockquote>
+<p><b>破坏性操作要有&quot;事后自检&quot;</b>。语法通过 ≠ 功能完整。</p>
+<p>正则/字符串替换是最容易&quot;多吃一口&quot;的操作，边界要格外小心。</p>
+</blockquote>
+<hr>
+<h3>难题 6：弹窗第二次打开是空白</h3>
+<p><b>现象</b>：项目详情第一次能看，关掉再打开就空白。</p>
+<p><b>原因</b>：为了性能把 iframe 改成懒加载，关闭时把 <code>src</code> 设为 <code>about:blank</code>；再次打开时判断条件是 <code>if(!f.getAttribute(&#x27;src&#x27;))</code>——而 <code>about:blank</code> 是<b>非空字符串</b>，判断为假，于是永远不再赋值。</p>
+<p><b>修复</b>：把 <code>about:blank</code> 也视为&quot;未加载&quot;。</p>
+<p><b>教训</b>：</p>
+<blockquote>
+<p>用&quot;占位值&quot;表示&quot;空状态&quot;时，<b>所有读取这个值的地方都要知道这个约定</b>。否则就是埋雷。</p>
+</blockquote>
+<hr>
+<h3>难题 7：云服务不是&quot;开了就能用&quot;</h3>
+<p>接 WorkBuddy 云服务时遇到三个真实约束：</p>
+<ol>
+<li><b>Origin 白名单</b>：云服务只接受<b>它自己发布的域名</b>（<code>wbapp-xxx.app.workbuddy.host</code>）发起的请求。GitHub Pages、本地预览都会被拒绝。→ 意味着&quot;云端后台&quot;只能在发布域名下用。</li>
+<li><b>写入必须有身份</b>：数据库有 RLS（行级安全），<code>INSERT</code> 时 <code>owner_id</code> 默认取 <code>auth.uid()</code>，未登录就没有身份，写不进去。→ 所以后台必须加登录。</li>
+<li><b>表要自己建</b>：云服务不会自动建表，要先 <code>CREATE TABLE</code> + 开 RLS + 写四条策略（公开读 / 本人增删改）。</li>
+</ol>
+<p><b>教训</b>：</p>
+<blockquote>
+<p>&quot;接后端&quot;不是一个开关，而是一组约束条件的组合。<b>先摸清边界（谁能访问、谁能写、数据放哪），再动手写代码。</b></p>
+</blockquote>
+<hr>
+<h3>难题 8：粒子光效迭代了六轮</h3>
+<p>用户的要求一直在细化，每一轮都是&quot;更具体的感受&quot;：</p>
+<div class="tw"><table><thead><tr><th>轮次</th><th>需求</th><th>实现</th></tr></thead><tbody>
+<tr><td>1</td><td>参考 Logo 的橙红意象</td><td>螺旋汇聚 + 中心瞳孔</td></tr>
+<tr><td>2</td><td>收放有节奏、有层次、带轻微体积光</td><td>呼吸曲线 + 分层亮度 + 三层柔光</td></tr>
+<tr><td>3</td><td>弥散光粒子、星点消散</td><td>柔雾层 + 全屏星点</td></tr>
+<tr><td>4</td><td>参考 v7、转速取中间值、光晕减弱、呼吸更快、边缘不规则</td><td>改参数 + 角度扰动</td></tr>
+<tr><td>5</td><td>像篝火从下往上飞舞、光晕像音波起伏</td><td>火星上升 + 音波环 + 不规则填充</td></tr>
+<tr><td>6</td><td>让它自己飘、经过时吸引粒子</td><td>漂浮轨迹 + 引力场 + 环绕运动</td></tr>
+</tbody></table></div>
+<p><b>关键技术点（第 6 轮）</b>：</p>
+<ul>
+<li>光斑位置 = 两组不同频率正弦叠加 → 路径不重复，像&quot;游走&quot;而非&quot;画圈&quot;</li>
+<li>引力分三段：远处自由飘 → 中距离速度导向光斑 → 近处转切向环绕</li>
+<li>一开始粒子飞到核心就被&quot;吞噬重生&quot;，导致光斑周围反而变空（像黑洞）→ 改成环绕，并延长环绕时的寿命，才看得见</li>
+</ul>
+<p><b>教训</b>：</p>
+<blockquote>
+<p>视觉需求很难一次说清，<b>最好的沟通方式是&quot;我先做出来给你看&quot;</b>。</p>
+<p>我用 Python + PIL 把 canvas 的绘制逻辑重写了一遍，生成静态帧预览图，在部署前就能自查亮度/密度/分布——比&quot;改完让用户看&quot;快得多。</p>
+</blockquote>
+<hr>
+<h3>难题 9：移动端不是&quot;缩小版桌面&quot;</h3>
+<p>移动版真正要重做的是<b>交互模型</b>，不是 CSS：</p>
+<div class="tw"><table><thead><tr><th>桌面逻辑</th><th>移动端必须改成</th></tr></thead><tbody>
+<tr><td>鼠标 drag 拖拽横向导航</td><td>原生横向滚动 + 惯性 + <code>scroll-snap</code> 吸附</td></tr>
+<tr><td>居中弹窗</td><td>底部抽屉（85vh）+ 顶部把手 + 底部固定关闭键（单手可达）</td></tr>
+<tr><td><code>:hover</code> 反馈</td><td><code>:active</code> 缩放（手机上没有 hover）</td></tr>
+<tr><td>canvas 粒子</td><td>CSS transform 动画（移动端 GPU 更吃这个）</td></tr>
+<tr><td><code>100vh</code></td><td><code>calc(var(--vh,1vh)*85)</code> + 监听 resize（iOS 地址栏会让 100vh 出错）</td></tr>
+<tr><td>点击区域随意</td><td>所有可点元素 ≥44×44px（Apple HIG）</td></tr>
+</tbody></table></div>
+<p><b>教训</b>：</p>
+<blockquote>
+<p>移动端适配的核心是<b>手指的物理限制</b>：够不到屏幕上方、容易误触、没有悬停。</p>
+<p>设计的起点应该是&quot;单手怎么用&quot;，而不是&quot;怎么把桌面版塞进来&quot;。</p>
+</blockquote>
+<hr>
+<h2>二、贯穿全程的五条方法论</h2>
+<h3>1. 先分层定位，再改代码</h3>
+<p>任何&quot;不好用&quot;的问题，先问：<b>是内容问题、前端问题、服务端问题，还是网络/域名问题？</b></p>
+<p>本次最大的一次浪费，就是在前端反复改了四轮，而根因在服务器的 Range 支持。</p>
+<h3>2. 用一条命令验证假设，而不是靠猜</h3>
+<p><code>curl -I</code>、<code>curl -H &quot;Range: ...&quot;</code>、<code>curl -o /dev/null -w &quot;%{http_code}&quot;</code>——几秒钟就能把&quot;猜测&quot;变成&quot;结论&quot;。</p>
+<h3>3. 每一项优化都要有数字</h3>
+<p>不是&quot;感觉快了&quot;，而是&quot;10MB → 192KB&quot;。数字才能证明有效，也才能写进复盘和面试。</p>
+<h3>4. 破坏性操作必须备份 + 事后自检</h3>
+<p>备份到 <code>历史版本/</code>，改完 grep 关键函数。<b>语法通过不等于功能完好。</b></p>
+<h3>5. 用&quot;可验证的产出&quot;代替&quot;口头描述&quot;</h3>
+<ul>
+<li>粒子效果 → 先出静态预览图</li>
+<li>视频能否拖动 → 内置 <code>?selftest=1</code> 钩子，把 seek 结果写进页面标题，用自动化读取验证</li>
+<li>部署是否成功 → 直接 curl 线上文件，确认代码特征字符串存在</li>
+</ul>
+<hr>
+<h2>三、最终交付物</h2>
+<div class="tw"><table><thead><tr><th>类别</th><th>内容</th></tr></thead><tbody>
+<tr><td>桌面端</td><td><code>index.html</code>（粒子动效 + 4 个项目 + 视频 + 云数据）</td></tr>
+<tr><td>移动端</td><td><code>index-m.html</code>（底部抽屉 + 吸附导航 + CSS 光效）</td></tr>
+<tr><td>短链入口</td><td><code>m.html</code> → 扫码/短链直达移动版</td></tr>
+<tr><td>后台</td><td><code>admin.html</code>（登录 + 云端增删改 + 拖拽排序）</td></tr>
+<tr><td>云服务</td><td><code>projects</code> 表 + 4 条 RLS 策略</td></tr>
+<tr><td>部署</td><td>GitHub Pages（主）+ WorkBuddy 发布（备，支持云后台）</td></tr>
+<tr><td>版本归档</td><td><code>历史版本/</code>（26 个节点 + README 索引）</td></tr>
+</tbody></table></div>
+<hr>
+<h2>四、如果重来一次，我会怎么做</h2>
+<ol>
+<li><b>第一小时</b>就测三个平台的 Range 支持，而不是先改前端</li>
+<li><b>部署 Cloudflare 前</b>先确认 workers.dev 在国内的可达性</li>
+<li><b>改任何大段代码前</b>先备份，改完立即 grep 自检</li>
+<li><b>优化性能前</b>先列出全部资源清单算总大小</li>
+<li><b>视觉类需求</b>先出静态预览图确认方向，再动线上代码</li>
+</ol></section>
+<section class="doc" id="doc-guide" data-key="guide"><h1>用 WorkBuddy 做网页 · 逻辑步骤指南</h1>
+<blockquote>
+<p>这份指南是我从零做完整套作品集（桌面端 + 移动端 + 云服务 + 双平台部署）后抽出来的方法。</p>
+<p>不是&quot;按钮在哪&quot;的说明书，而是<b>每一步该想什么、容易错在哪</b>。</p>
+</blockquote>
+<hr>
+<h2>阶段一：定清楚「做什么」（30 分钟，决定后面 90% 的效率）</h2>
+<div class="tw"><table><thead><tr><th>要定的事</th><th>具体问题</th><th>反面案例</th></tr></thead><tbody>
+<tr><td>目标受众</td><td>面试官？客户？投资人？他们会用什么设备打开？</td><td>只按自己的电脑做，手机上全乱</td></tr>
+<tr><td>核心信息</td><td>打开 5 秒内必须看到的一句话是什么？</td><td>首屏全是装饰，看不到&quot;你是谁&quot;</td></tr>
+<tr><td>内容清单</td><td>有几个项目？每个项目有什么材料（图/PDF/视频/原型）？</td><td>做到一半才发现没准备素材</td></tr>
+<tr><td>主行动</td><td>希望对方做的<b>一个</b>动作是什么？（下载简历 / 加微信）</td><td>什么都能点，等于没有重点</td></tr>
+</tbody></table></div>
+<p><b>产出</b>：一张纸写清「受众 / 一句话定位 / 项目清单 / 主行动」。</p>
+<blockquote>
+<p>这一步偷懒，后面每个细节都要回来补。</p>
+</blockquote>
+<hr>
+<h2>阶段二：让 AI 生成初版（对话式，不要一次性提完）</h2>
+<p><b>正确姿势</b>：分块提需求，每块只描述<b>内容与结构</b>，不描述代码。</p>
+<pre><code>第 1 轮：这是个人作品集，受众是面试官，包含首屏 / 4 个项目 / 视频 / 联系方式。
+        风格：深色、克制、专业。先出结构，不要动效。
+第 2 轮：把项目卡片改成可点开看详情，详情里能嵌入 PDF 和 H5 原型。
+第 3 轮：首屏加一层粒子光效，参考我 Logo 的橙红色系。</code></pre>
+<p><b>为什么分轮</b>：一次给太多，AI 会平均用力，每块都做得勉强；分轮可以每轮验收。</p>
+<p><b>关键提醒 AI 的三件事</b>：</p>
+<ol>
+<li>不引外部 CDN（很多域名在国内不可达）</li>
+<li>大改前先备份文件到 <code>历史版本/</code></li>
+<li>改完要自检关键功能是否还在</li>
+</ol>
+<hr>
+<h2>阶段三：本地预览 → 小步迭代（最容易失控的阶段）</h2>
+<p><b>工作方式</b>：一次只改一件事，改完立刻看效果。</p>
+<div class="tw"><table><thead><tr><th>顺序</th><th>改什么</th><th>为什么先改这个</th></tr></thead><tbody>
+<tr><td>1</td><td>文案与结构</td><td>内容对了，样式才有意义</td></tr>
+<tr><td>2</td><td>间距 / 字号 / 层级</td><td>影响 80% 的&quot;高级感&quot;</td></tr>
+<tr><td>3</td><td>交互（点击、滚动、弹窗）</td><td>决定好不好用</td></tr>
+<tr><td>4</td><td>动效</td><td>最后加，否则会干扰前面的判断</td></tr>
+</tbody></table></div>
+<p><b>这个阶段最容易出的事故</b>：</p>
+<ul>
+<li>❌ <b>大段替换代码时误删相邻内容</b>（我真删掉过整段粒子系统）</li>
+</ul>
+<p>  → 规则：改前备份，改后 <code>grep</code> 关键函数名确认还在</p>
+<ul>
+<li>❌ <b>隐藏元素仍在加载资源</b>（隐藏弹窗里的 PDF 全在下载）</li>
+</ul>
+<p>  → 规则：<code>iframe</code> 用 <code>data-src</code>，点开才加载</p>
+<ul>
+<li>❌ <b>只看自己电脑</b>（手机上排版全崩）</li>
+</ul>
+<p>  → 规则：每轮改完都用手机打开一次</p>
+<hr>
+<h2>阶段四：性能优化（上线前必做，收益最大）</h2>
+<p><b>第一步：算总账</b></p>
+<p>列出首屏要加载的所有资源及大小，加总。通常会发现一个&quot;隐形大户&quot;。</p>
+<p><b>第二步：按收益排序优化</b></p>
+<div class="tw"><table><thead><tr><th>优化项</th><th>做法</th><th>典型收益</th></tr></thead><tbody>
+<tr><td>隐藏内容懒加载</td><td><code>iframe</code> 的 <code>src</code> → <code>data-src</code>，交互时才赋值</td><td>一次省掉几 MB</td></tr>
+<tr><td>视频不预载</td><td><code>preload=&quot;metadata&quot;</code></td><td>省掉整个视频体积</td></tr>
+<tr><td>图片压缩</td><td>转 JPG/WebP，限制最大宽度，质量 80-85</td><td>单张省 90%</td></tr>
+<tr><td>依赖本地化</td><td>CDN 资源下载到项目内</td><td>避免域名不可达</td></tr>
+</tbody></table></div>
+<p><b>验收标准</b>：首屏总字节数下降一个数量级（我的是 10MB → 192KB）。</p>
+<hr>
+<h2>阶段五：版本管理（保证&quot;改坏了能退回去&quot;）</h2>
+<p><b>最小可行的做法</b>（不用学 Git 也能用）：</p>
+<ol>
+<li>项目里建 <code>历史版本/</code> 目录</li>
+<li>每次要大改前，复制当前文件进去，命名带日期和说明：</li>
+</ol>
+<p>   <code>07_index_1116_导航轮播版.html</code></p>
+<ol>
+<li>建一个 <code>README.md</code> 当索引，写清每个版本改了什么</li>
+<li>版本文件<b>只增不删</b></li>
+</ol>
+<p><b>进阶（有 Git 更好）</b>：</p>
+<pre><code>git add -A &amp;&amp; git commit -m &quot;描述这次改了什么&quot;
+git push</code></pre>
+<p>好处：每次提交都是可回滚的存档，而且能推送到 GitHub Pages 自动部署。</p>
+<hr>
+<h2>阶段六：部署（多平台，各有取舍）</h2>
+<h3>平台对比（实测结论）</h3>
+<div class="tw"><table><thead><tr><th>平台</th><th>国内可达</th><th>视频拖进度条</th><th>静态站免费</th><th>备注</th></tr></thead><tbody>
+<tr><td><b>GitHub Pages</b></td><td>可（偏慢）</td><td>✅ 支持 Range</td><td>✅</td><td>最稳，推荐主用</td></tr>
+<tr><td>WorkBuddy 发布</td><td>可</td><td>❌ 不支持 Range</td><td>✅</td><td>支持云服务，适合做后台</td></tr>
+<tr><td>Cloudflare Pages</td><td>视情况</td><td>—</td><td>✅</td><td><code>workers.dev</code> 国内常不可达</td></tr>
+<tr><td>本地预览</td><td>仅本机</td><td>❌</td><td>—</td><td>仅开发用</td></tr>
+</tbody></table></div>
+<h3>关键判断：视频能不能拖进度条？</h3>
+<pre><code>curl -s -o /dev/null -w &quot;%{http_code}\n&quot; \
+  -H &quot;Range: bytes=0-1023&quot; https://你的域名/视频.mp4</code></pre>
+<ul>
+<li>返回 <b>206</b> → 服务器支持分段，原生可拖</li>
+<li>返回 <b>200</b> → 不支持，需要前端 Blob 兜底</li>
+</ul>
+<h3>GitHub Pages 部署（最省事）</h3>
+<ol>
+<li>建仓库：<code>用户名.github.io</code></li>
+<li>本地 <code>git push</code></li>
+<li>仓库 Settings → Pages → 选 main 分支 → 根目录</li>
+<li>访问 <code>https://用户名.github.io</code></li>
+</ol>
+<h3>WorkBuddy 发布</h3>
+<ul>
+<li>用发布功能直接产出在线链接，适合<b>需要云服务（数据库/登录）</b>的项目</li>
+<li>注意：云服务的接口有 Origin 白名单，<b>只在发布域名下可用</b></li>
+</ul>
+<hr>
+<h2>阶段七：云服务接入（需要&quot;真后端&quot;时）</h2>
+<p><b>先判断是否真的需要</b>：</p>
+<ul>
+<li>只有你自己改内容 → 用本地管理工具 + 手动更新HTML 就够</li>
+<li>希望<b>别人也能看到你后台新增的内容</b> → 才需要云数据库</li>
+</ul>
+<p><b>标准流程</b>：</p>
+<pre><code>1. 激活环境（inspect → activate，复用已有应用）
+2. 建表（CREATE TABLE，字段：id / owner_id / 业务字段 / created_at）
+3. 开 RLS + 写策略（公开读 + 仅本人增删改）
+4. 前端接入（初始化 SDK → 读 / 写 / 删）
+5. 后台加登录（写入需要身份，OAuth 或验证码）
+6. 验证（写一条 → 首页能读出来 → 删除）</code></pre>
+<p><b>三个必知的坑</b>：</p>
+<ol>
+<li><b>写入必须有登录身份</b>，否则被 RLS 拒绝</li>
+<li><b>Origin 白名单</b>：换个域名调用会被拒（所以云功能只在发布域名生效）</li>
+<li><b>SDK 不要依赖 CDN</b>，下载到本地更稳</li>
+</ol>
+<hr>
+<h2>阶段八：移动端适配（不是缩小版桌面）</h2>
+<p><b>要重做的四件事</b>：</p>
+<div class="tw"><table><thead><tr><th>桌面</th><th>移动</th></tr></thead><tbody>
+<tr><td>多列布局</td><td>单列垂直流</td></tr>
+<tr><td>鼠标拖拽</td><td>原生横向滚动 + <code>scroll-snap</code> 吸附</td></tr>
+<tr><td>居中弹窗</td><td>底部抽屉（85vh）+ 底部固定关闭键</td></tr>
+<tr><td><code>:hover</code></td><td><code>:active</code> 缩放反馈</td></tr>
+</tbody></table></div>
+<p><b>必查清单</b>：</p>
+<ul class="chk">
+<li><span class="box">☐</span><code>viewport</code> 含 <code>viewport-fit=cover</code>，禁用手势缩放</li>
+<li><span class="box">☐</span><code>overflow-x: hidden</code>（html 和 body 都要）</li>
+<li><span class="box">☐</span>安全区：<code>env(safe-area-inset-bottom)</code> 给底部留空间</li>
+<li><span class="box">☐</span>可点元素 ≥ 44×44px</li>
+<li><span class="box">☐</span>正文字号 ≥ 14px，标题 20-24px</li>
+<li><span class="box">☐</span>抽屉用 <code>transform</code> 动画，不用 <code>height</code></li>
+<li><span class="box">☐</span>复杂 canvas 换成 CSS 动画（省电、不卡）</li>
+<li><span class="box">☐</span>视频加 <code>playsinline</code>，否则 iOS 强制全屏</li>
+</ul>
+<hr>
+<h2>阶段九：验证与交付</h2>
+<p><b>不要&quot;觉得没问题&quot;，要&quot;证明没问题&quot;</b>：</p>
+<div class="tw"><table><thead><tr><th>要验证的</th><th>验证方法</th></tr></thead><tbody>
+<tr><td>页面能打开</td><td><code>curl -o /dev/null -w &quot;%{http_code}&quot;</code></td></tr>
+<tr><td>新代码已生效</td><td>`curl ... \</td><td>grep 特征字符串`（如函数名）</td></tr>
+<tr><td>视频能拖</td><td>内置 <code>?selftest=1</code> 钩子，把结果写进页面标题</td></tr>
+<tr><td>移动端布局</td><td>真机打开，或用浏览器设备模拟</td></tr>
+<tr><td>所有弹窗能开</td><td>逐个点开、关闭、再点开（验证第二次不空白）</td></tr>
+</tbody></table></div>
+<p><b>交付物清单</b>：</p>
+<ol>
+<li>桌面端链接</li>
+<li>移动端链接 + 短链</li>
+<li>二维码（扫码直达，绕开微信内置浏览器）</li>
+<li>源码 + 版本归档</li>
+<li>后台地址与使用说明</li>
+</ol>
+<hr>
+<h2>附：一整轮的节奏建议</h2>
+<div class="tw"><table><thead><tr><th>时间</th><th>做什么</th></tr></thead><tbody>
+<tr><td>30 分钟</td><td>定受众、定位、内容清单</td></tr>
+<tr><td>1-2 小时</td><td>生成初版 + 结构确认</td></tr>
+<tr><td>2-4 小时</td><td>内容填充 + 样式打磨</td></tr>
+<tr><td>1 小时</td><td>交互与动效</td></tr>
+<tr><td>30 分钟</td><td>性能优化</td></tr>
+<tr><td>30 分钟</td><td>部署 + 验证</td></tr>
+<tr><td>1-2 小时</td><td>移动端适配</td></tr>
+<tr><td>按需</td><td>云服务接入</td></tr>
+</tbody></table></div>
+<blockquote>
+<p>真正耗时的从来不是写代码，而是<b>&quot;改了半天发现方向错了&quot;</b>。</p>
+<p>所以：先定方向 → 小步验证 → 及时备份 → 用数据确认。</p>
+</blockquote></section>
+<script>
+(function(){
+  var tabs = document.getElementById('tabs');
+  var docs = document.querySelectorAll('.doc');
+  function show(key){
+    docs.forEach(function(d){ d.classList.toggle('on', d.dataset.key === key); });
+    tabs.querySelectorAll('.tab').forEach(function(t){
+      t.classList.toggle('on', t.dataset.key === key);
+    });
+    window.scrollTo(0, 0);
+  }
+  tabs.addEventListener('click', function(e){
+    var t = e.target.closest('.tab'); if(!t) return;
+    show(t.dataset.key);
+  });
+  show('talk');
+})();
+</script>
+</body>
+</html>
