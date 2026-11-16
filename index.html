@@ -1061,12 +1061,12 @@
     loadCloud();
   })();
 
-  /* ============ 顶部粒子光效：Logo 粒子化 + 收放节奏 + 体积光（细腻克制） ============ */
+  /* ============ 顶部粒子光效：v7 螺旋汇聚 + 中间转速 + 弱光晕 + 快呼吸 + 不规则边缘 ============ */
   (function initParticles(){
     var canvas = document.getElementById('particleCanvas');
     if(!canvas) return;
     var ctx = canvas.getContext('2d');
-    var W, H, cx, cy;
+    var W, H, cx, cy, lastNow = 0;
 
     function resize(){
       var hero = canvas.parentElement;
@@ -1078,61 +1078,40 @@
     resize();
     window.addEventListener('resize', resize);
 
-    /* 橙红同色系（呼应 Logo） */
-    function logoColor(k){
-      var r = Math.round(190 + (255 - 190) * k);
-      var g = Math.round(95 + (240 - 95) * k);
-      var b = Math.round(72 + (205 - 72) * k);
+    function logoColor(t){
+      var r = Math.round(192 + (255 - 192) * t);
+      var g = Math.round(96 + (235 - 96) * t);
+      var b = Math.round(74 + (200 - 74) * t);
       return [r, g, b];
     }
 
-    /* 粒子：分层（内层亮/外层暗），各自呼吸相位 */
-    var particles = [];
-    var N = 64;
-    for(var i = 0; i < N; i++){
-      particles.push({
-        baseAngle: Math.random() * Math.PI * 2,
-        baseRadius: 30 + Math.random() * 170,
-        rotSpeed: 0.003 + Math.random() * 0.006,
+    /* 螺旋粒子：参考 v7 的向内汇聚；转速取 v7 与当前版本的中间值 */
+    var spiral = [];
+    for(var i = 0; i < 56; i++){
+      spiral.push({
+        angle: Math.random() * Math.PI * 2,
+        radius: 40 + Math.random() * 165,
+        rotSpeed: 0.0021 + Math.random() * 0.0023,   /* rad/ms ≈ 两版中间值 */
+        inward: 0.0008 + Math.random() * 0.0016,     /* px/ms 向内汇聚 */
+        r: 1 + Math.random() * 1.9,
         phase: Math.random() * Math.PI * 2,
-        r: 0.8 + Math.random() * 1.8,
-        depth: Math.random()
+        lumpA: 0.10 + Math.random() * 0.20,          /* 边缘不规则强度 */
+        lumpF1: 2 + Math.floor(Math.random() * 3),
+        lumpF2: 4 + Math.floor(Math.random() * 4),
+        colorT: 0.3 + Math.random() * 0.7
       });
     }
 
-    /* 弥散光粒子：大尺度柔光雾，缓慢飘散（背景氛围层） */
-    var mists = [];
-    for(var m = 0; m < 7; m++){
-      mists.push({
-        x: Math.random(),
-        y: Math.random(),
-        r: 120 + Math.random() * 180,          // 半径（很大很柔）
-        vx: (Math.random() - 0.5) * 0.00012,   // 极慢水平漂移（按视口比例）
-        vy: -0.00004 - Math.random() * 0.00008,// 极慢上升
-        alpha: 0.040 + Math.random() * 0.042,  // 略提亮，仍保持柔和
-        phase: Math.random() * Math.PI * 2,
-        warm: Math.random()                 // 0=橙红 1=更亮暖白
-      });
-    }
-
-    /* 星点粒子：小而亮，缓慢向外飘散并明灭（星星点点、消散感） */
+    /* 星点：全屏散落、向外消散（光晕减弱，保留亮点） */
     function newStar(initial){
-      // 全屏分布：避开中心核过近的区域，其余均匀铺满（含四周边角）
       var sx, sy, tries = 0;
-      do{
-        sx = Math.random() * W;
-        sy = Math.random() * H;
-        tries++;
-      } while(Math.hypot(sx - cx, sy - cy) < W * 0.16 && tries < 12);
-
-      // 由中心指向该点的方向缓慢外扩 → 消散感
+      do{ sx = Math.random() * W; sy = Math.random() * H; tries++; }
+      while(Math.hypot(sx - cx, sy - cy) < W * 0.16 && tries < 12);
       var ang = Math.atan2(sy - cy, sx - cx);
       var spd = 0.05 + Math.random() * 0.13;
       return {
-        x: sx,
-        y: sy,
-        vx: Math.cos(ang) * spd,
-        vy: Math.sin(ang) * spd,
+        x: sx, y: sy,
+        vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
         r: 0.9 + Math.random() * 1.7,
         life: initial ? Math.random() : 0,
         lifeSpeed: 0.0013 + Math.random() * 0.0019,
@@ -1143,130 +1122,129 @@
     var stars = [];
     for(var s = 0; s < 64; s++){ stars.push(newStar(true)); }
 
-    /* 呼吸节奏：整体聚合-发散（约 18 秒一个周期） */
-    function breath(now){
-      return 0.5 + 0.5 * Math.sin(now * 0.00035);
+    /* 弥散柔雾：范围不变，亮度压低 */
+    var mists = [];
+    for(var m = 0; m < 7; m++){
+      mists.push({
+        x: Math.random(), y: Math.random(),
+        r: 120 + Math.random() * 180,
+        vx: (Math.random() - 0.5) * 0.00012,
+        vy: -0.00004 - Math.random() * 0.00008,
+        alpha: 0.026 + Math.random() * 0.028,
+        phase: Math.random() * Math.PI * 2,
+        warm: Math.random()
+      });
     }
 
+    /* 呼吸更快：周期约 6 秒（原来约 18 秒） */
+    function breath(now){ return 0.5 + 0.5 * Math.sin(now * 0.00105); }
+
     function draw(now){
+      var dt = lastNow ? Math.min(now - lastNow, 48) : 16;
+      lastNow = now;
       ctx.clearRect(0, 0, W, H);
       var b = breath(now);
 
-      /* 0. 弥散光层：大尺度柔光雾缓慢飘散（最底层氛围） */
+      /* 0. 弥散柔雾 */
       mists.forEach(function(mt){
         mt.x += mt.vx; mt.y += mt.vy; mt.phase += 0.0006;
         if(mt.y < -0.35){ mt.y = 1.25; mt.x = Math.random(); }
         if(mt.x < -0.35){ mt.x = 1.25; }
         if(mt.x > 1.25){ mt.x = -0.35; }
-
         var mx = mt.x * W, my = mt.y * H;
-        var pulse = 0.65 + 0.35 * Math.sin(mt.phase);   // 明暗呼吸
+        var pulse = 0.65 + 0.35 * Math.sin(mt.phase);
         var al = mt.alpha * pulse;
         var cc = mt.warm > 0.5 ? [255, 214, 180] : [224, 112, 90];
         var gg = ctx.createRadialGradient(mx, my, 0, mx, my, mt.r);
         gg.addColorStop(0, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + al.toFixed(4) + ')');
-        gg.addColorStop(0.55, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + (al * 0.35).toFixed(4) + ')');
+        gg.addColorStop(0.55, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + (al * 0.32).toFixed(4) + ')');
         gg.addColorStop(1, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',0)');
-        ctx.beginPath();
-        ctx.arc(mx, my, mt.r, 0, Math.PI * 2);
-        ctx.fillStyle = gg;
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(mx, my, mt.r, 0, Math.PI * 2);
+        ctx.fillStyle = gg; ctx.fill();
       });
 
-      /* 1. 体积光：多层柔光晕 */
+      /* 1. 体积光：整体减弱约一半 */
       var volLayers = [
-        { r: 150, a: 0.10 * (0.6 + b * 0.4) },
-        { r: 260, a: 0.05 * (0.6 + b * 0.4) },
-        { r: 380, a: 0.025 * (0.6 + b * 0.4) }
+        { r: 150, a: 0.048 * (0.6 + b * 0.4) },
+        { r: 260, a: 0.022 * (0.6 + b * 0.4) },
+        { r: 380, a: 0.010 * (0.6 + b * 0.4) }
       ];
       volLayers.forEach(function(layer){
         var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, layer.r);
         g.addColorStop(0, 'rgba(224,112,90,' + layer.a.toFixed(3) + ')');
         g.addColorStop(1, 'rgba(224,112,90,0)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, layer.r, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(cx, cy, layer.r, 0, Math.PI * 2);
+        ctx.fillStyle = g; ctx.fill();
       });
 
-      /* 1.5 星点层：星星点点、向外消散（清晰可见） */
+      /* 1.5 星点：星星点点、向外消散 */
       for(var si = 0; si < stars.length; si++){
         var st = stars[si];
         st.life += st.lifeSpeed;
-        st.x += st.vx;
-        st.y += st.vy;
+        st.x += st.vx; st.y += st.vy;
         st.twinkle += 0.05;
         if(st.life >= 1 || st.x < -40 || st.x > W + 40 || st.y < -40 || st.y > H + 40){
-          stars[si] = newStar(false);
-          st = stars[si];
+          stars[si] = newStar(false); st = stars[si];
         }
-        var sx2 = st.x;
-        var sy2 = st.y;
-        // 生命周期包络：淡入 → 最亮 → 淡出（消散感）
         var env = Math.sin(Math.PI * Math.min(st.life, 1));
         var tw = 0.62 + 0.38 * Math.sin(st.twinkle);
         var sa = 0.92 * env * tw;
         if(sa <= 0.012) continue;
         var scol = st.warm > 0.55 ? [255, 244, 222] : [255, 198, 152];
-        var sg = ctx.createRadialGradient(sx2, sy2, 0, sx2, sy2, st.r * 6);
+        var sg = ctx.createRadialGradient(st.x, st.y, 0, st.x, st.y, st.r * 4);
         sg.addColorStop(0, 'rgba(' + scol[0] + ',' + scol[1] + ',' + scol[2] + ',' + sa.toFixed(3) + ')');
-        sg.addColorStop(0.35, 'rgba(' + scol[0] + ',' + scol[1] + ',' + scol[2] + ',' + (sa * 0.45).toFixed(3) + ')');
+        sg.addColorStop(0.4, 'rgba(' + scol[0] + ',' + scol[1] + ',' + scol[2] + ',' + (sa * 0.34).toFixed(3) + ')');
         sg.addColorStop(1, 'rgba(' + scol[0] + ',' + scol[1] + ',' + scol[2] + ',0)');
-        ctx.beginPath(); ctx.arc(sx2, sy2, st.r * 6, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.arc(st.x, st.y, st.r * 4, 0, Math.PI * 2);
         ctx.fillStyle = sg; ctx.fill();
-        // 核心亮点
-        ctx.beginPath(); ctx.arc(sx2, sy2, st.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,252,246,' + Math.min(1, sa * 1.15).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,252,246,' + Math.min(1, sa * 1.2).toFixed(3) + ')';
         ctx.fill();
       }
 
-      /* 2. 中心瞳孔核心（随呼吸脉动） */
-      var coreR = 26 + b * 14;
-      var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 3);
-      core.addColorStop(0, 'rgba(255,248,238,' + (0.85 * (0.7 + b * 0.3)).toFixed(3) + ')');
-      core.addColorStop(0.4, 'rgba(224,112,90,' + (0.35 * (0.7 + b * 0.3)).toFixed(3) + ')');
+      /* 2. 中心核：光晕收窄、亮度降低 */
+      var coreR = 24 + b * 13;
+      var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 2.3);
+      core.addColorStop(0, 'rgba(255,248,238,' + (0.62 * (0.7 + b * 0.3)).toFixed(3) + ')');
+      core.addColorStop(0.35, 'rgba(224,112,90,' + (0.20 * (0.7 + b * 0.3)).toFixed(3) + ')');
       core.addColorStop(1, 'rgba(224,112,90,0)');
-      ctx.beginPath();
-      ctx.arc(cx, cy, coreR * 3, 0, Math.PI * 2);
-      ctx.fillStyle = core;
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(cx, cy, coreR * 2.3, 0, Math.PI * 2);
+      ctx.fillStyle = core; ctx.fill();
 
-      /* 3. 螺旋粒子：随呼吸聚合-发散，带层次 */
-      particles.forEach(function(p){
-        var angle = p.baseAngle + now * p.rotSpeed;
-        var radius = p.baseRadius * (0.75 + b * 0.55);
-        var x = cx + Math.cos(angle) * radius;
-        var y = cy + Math.sin(angle) * radius * 0.82;
+      /* 3. 螺旋粒子：向内汇聚 + 快速呼吸 + 不规则边缘 */
+      spiral.forEach(function(p){
+        p.angle += p.rotSpeed * dt;
+        p.radius -= p.inward * dt;
+        if(p.radius < 18){
+          p.radius = 150 + Math.random() * 70;
+          p.angle = Math.random() * Math.PI * 2;
+        }
+        /* 不规则边界：随角度叠加两层低频扰动 */
+        var lump = 1
+          + p.lumpA * Math.sin(p.lumpF1 * p.angle + p.phase)
+          + p.lumpA * 0.55 * Math.sin(p.lumpF2 * p.angle + p.phase * 1.7);
+        var radius = p.radius * (0.72 + b * 0.62) * lump;
 
-        var k = 1 - (p.baseRadius / 200);
-        var col = logoColor(0.3 + k * 0.6);
-        var flicker = 0.5 + 0.5 * Math.sin(now * 0.002 + p.phase);
-        var a = (0.25 + 0.45 * k) * (0.5 + 0.5 * flicker);
+        var x = cx + Math.cos(p.angle) * radius;
+        var y = cy + Math.sin(p.angle) * radius * 0.82;
 
-        var g = ctx.createRadialGradient(x, y, 0, x, y, p.r * 5);
+        var t = p.colorT * Math.min(1, p.radius / 200);
+        var col = logoColor(t);
+        var a = 0.34 + 0.34 * Math.sin(now * 0.0025 + p.phase);
+        if(a < 0.08) a = 0.08;
+
+        /* 光晕减弱：半径 r*5 → r*2.8 */
+        var g = ctx.createRadialGradient(x, y, 0, x, y, p.r * 2.8);
         g.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')');
+        g.addColorStop(0.45, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + (a * 0.28).toFixed(3) + ')');
         g.addColorStop(1, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0)');
-        ctx.beginPath();
-        ctx.arc(x, y, p.r * 5, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, p.r * 2.8, 0, Math.PI * 2);
+        ctx.fillStyle = g; ctx.fill();
 
-        ctx.beginPath();
-        ctx.arc(x, y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,244,230,' + (a * 0.85).toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(x, y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,244,230,' + (a * 0.9).toFixed(3) + ')';
         ctx.fill();
       });
-
-      /* 4. 稀疏星尘（克制） */
-      for(var d = 0; d < 24; d++){
-        var dx = (d * 137.5 + now * 0.01) % W;
-        var dy = (d * 251.7 + Math.sin(now * 0.0008 + d) * 40) % H;
-        var da = 0.12 + 0.1 * Math.sin(now * 0.002 + d * 1.7);
-        ctx.beginPath();
-        ctx.arc(dx, dy, 0.8, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(245,235,220,' + Math.max(0, da).toFixed(3) + ')';
-        ctx.fill();
-      }
 
       requestAnimationFrame(draw);
     }
