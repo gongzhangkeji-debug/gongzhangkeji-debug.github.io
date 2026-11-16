@@ -1018,6 +1018,123 @@
 
     loadCloud();
   })();
+
+  /* ============ 顶部粒子光效：Logo 粒子化 + 收放节奏 + 体积光（细腻克制） ============ */
+  (function initParticles(){
+    var canvas = document.getElementById('particleCanvas');
+    if(!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W, H, cx, cy;
+
+    function resize(){
+      var hero = canvas.parentElement;
+      W = canvas.width = hero.offsetWidth;
+      H = canvas.height = hero.offsetHeight;
+      cx = W * 0.30;
+      cy = H * 0.34;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    /* 橙红同色系（呼应 Logo） */
+    function logoColor(k){
+      var r = Math.round(190 + (255 - 190) * k);
+      var g = Math.round(95 + (240 - 95) * k);
+      var b = Math.round(72 + (205 - 72) * k);
+      return [r, g, b];
+    }
+
+    /* 粒子：分层（内层亮/外层暗），各自呼吸相位 */
+    var particles = [];
+    var N = 64;
+    for(var i = 0; i < N; i++){
+      particles.push({
+        baseAngle: Math.random() * Math.PI * 2,
+        baseRadius: 30 + Math.random() * 170,
+        rotSpeed: 0.003 + Math.random() * 0.006,
+        phase: Math.random() * Math.PI * 2,
+        r: 0.8 + Math.random() * 1.8,
+        depth: Math.random()
+      });
+    }
+
+    /* 呼吸节奏：整体聚合-发散（约 18 秒一个周期） */
+    function breath(now){
+      return 0.5 + 0.5 * Math.sin(now * 0.00035);
+    }
+
+    function draw(now){
+      ctx.clearRect(0, 0, W, H);
+      var b = breath(now);
+
+      /* 1. 体积光：多层柔光晕 */
+      var volLayers = [
+        { r: 150, a: 0.10 * (0.6 + b * 0.4) },
+        { r: 260, a: 0.05 * (0.6 + b * 0.4) },
+        { r: 380, a: 0.025 * (0.6 + b * 0.4) }
+      ];
+      volLayers.forEach(function(layer){
+        var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, layer.r);
+        g.addColorStop(0, 'rgba(224,112,90,' + layer.a.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(224,112,90,0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, layer.r, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+      });
+
+      /* 2. 中心瞳孔核心（随呼吸脉动） */
+      var coreR = 26 + b * 14;
+      var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 3);
+      core.addColorStop(0, 'rgba(255,248,238,' + (0.85 * (0.7 + b * 0.3)).toFixed(3) + ')');
+      core.addColorStop(0.4, 'rgba(224,112,90,' + (0.35 * (0.7 + b * 0.3)).toFixed(3) + ')');
+      core.addColorStop(1, 'rgba(224,112,90,0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR * 3, 0, Math.PI * 2);
+      ctx.fillStyle = core;
+      ctx.fill();
+
+      /* 3. 螺旋粒子：随呼吸聚合-发散，带层次 */
+      particles.forEach(function(p){
+        var angle = p.baseAngle + now * p.rotSpeed;
+        var radius = p.baseRadius * (0.75 + b * 0.55);
+        var x = cx + Math.cos(angle) * radius;
+        var y = cy + Math.sin(angle) * radius * 0.82;
+
+        var k = 1 - (p.baseRadius / 200);
+        var col = logoColor(0.3 + k * 0.6);
+        var flicker = 0.5 + 0.5 * Math.sin(now * 0.002 + p.phase);
+        var a = (0.25 + 0.45 * k) * (0.5 + 0.5 * flicker);
+
+        var g = ctx.createRadialGradient(x, y, 0, x, y, p.r * 5);
+        g.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0)');
+        ctx.beginPath();
+        ctx.arc(x, y, p.r * 5, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(x, y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,244,230,' + (a * 0.85).toFixed(3) + ')';
+        ctx.fill();
+      });
+
+      /* 4. 稀疏星尘（克制） */
+      for(var d = 0; d < 24; d++){
+        var dx = (d * 137.5 + now * 0.01) % W;
+        var dy = (d * 251.7 + Math.sin(now * 0.0008 + d) * 40) % H;
+        var da = 0.12 + 0.1 * Math.sin(now * 0.002 + d * 1.7);
+        ctx.beginPath();
+        ctx.arc(dx, dy, 0.8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(245,235,220,' + Math.max(0, da).toFixed(3) + ')';
+        ctx.fill();
+      }
+
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
 })();
 </script>
 
