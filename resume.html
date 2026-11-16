@@ -32,7 +32,12 @@
   }
 
   /* 头部 */
-  .head{border-bottom:3px solid var(--accent);padding-bottom:20px;margin-bottom:24px;}
+  .head{border-bottom:3px solid var(--accent);padding-bottom:20px;margin-bottom:24px;display:flex;align-items:center;gap:20px;}
+  .head .photo{
+    width:96px;height:96px;border-radius:50%;object-fit:cover;object-position:center 22%;
+    flex:0 0 auto;border:2px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.10);
+  }
+  .head .info{flex:1;}
   .name{font-size:32px;font-weight:700;letter-spacing:.02em;}
   .aim{font-size:15px;color:var(--accent);font-weight:600;margin-top:6px;}
   .contact{font-size:13px;color:var(--sub);margin-top:10px;}
@@ -121,12 +126,15 @@
 
   <!-- 头部 -->
   <div class="head">
-    <div class="name">张协恒</div>
-    <div class="aim">求职意向：AI 产品经理 / C端用户体验设计师（行为设计方向）</div>
-    <div class="contact">
-      <span>📧 gongzhangkeji@gmail.com</span>
-      <span>📱 18763661918</span>
-      <span>🌐 gongzhangkeji-debug.github.io</span>
+    <img class="photo" src="avatar.png" alt="张协恒">
+    <div class="info">
+      <div class="name">张协恒</div>
+      <div class="aim">求职意向：AI 产品经理 / C端用户体验设计师（行为设计方向）</div>
+      <div class="contact">
+        <span>📧 gongzhangkeji@gmail.com</span>
+        <span>📱 18763661918</span>
+        <span>🌐 gongzhangkeji-debug.github.io</span>
+      </div>
     </div>
   </div>
 
