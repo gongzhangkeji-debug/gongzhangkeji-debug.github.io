@@ -268,19 +268,6 @@
     width:100%;height:100%;object-fit:contain;display:block;
     background:#000;
   }
-  .video-cover{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    font-size:16px;font-weight:600;color:var(--text-2);letter-spacing:.05em;
-    background:linear-gradient(135deg,var(--surface),var(--surface-2));
-    cursor:pointer;flex-direction:column;gap:10px;
-    transition:opacity .3s var(--ease);
-  }
-  .video-cover.hidden{opacity:0;pointer-events:none;}
-  .video-cover .play-ico{
-    width:56px;height:56px;border-radius:50%;
-    background:rgba(255,255,255,.1);border:1px solid var(--border-2);
-    display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--mint);
-  }
   .video-section .video-tip{text-align:center;font-size:13px;color:var(--text-3);margin-top:14px;}
 
   /* ============ 联系 / 页脚 ============ */
@@ -440,16 +427,12 @@
     <h2 class="section-title fade-up">小悦 App 演示</h2>
     <p class="section-sub fade-up">1 分 45 秒完整演示：从首页到练后闭环预约提醒。</p>
     <div class="video-wrap fade-up" id="videoWrap">
-      <video controls preload="auto" id="demoVideo">
+      <video controls preload="auto" id="demoVideo" poster="video-poster.jpg">
         <source src="xiaoyue-demo.mp4" type="video/mp4">
         你的浏览器不支持视频播放。
       </video>
-      <div class="video-cover" id="videoCover">
-        <span class="play-ico">▶</span>
-        优化视觉落地展示
-      </div>
     </div>
-    <div class="video-tip">💡 点击封面播放，进度条可拖拽跳转 · 空格 = 播放/暂停 · ←/→ = 快退/快进</div>
+    <div class="video-tip">💡 点击播放，进度条可拖拽跳转 · 空格 = 播放/暂停 · ←/→ = 快退/快进</div>
   </div>
 </section>
 
@@ -648,17 +631,7 @@
   function playDrip(){ playSound(880); }
   function playClose(){ playSound(520); }
 
-  /* ============ 视频：封面点击播放，播放后彻底消失（确保进度条可拖拽） ============ */
-  var video = document.getElementById('demoVideo');
-  var cover = document.getElementById('videoCover');
-  if(video && cover){
-    cover.addEventListener('click', function(){
-      if(video.paused){ video.play(); }
-    });
-    video.addEventListener('play', function(){ cover.style.display = 'none'; });
-  }
-
-/* ============ 横向导航：JS 驱动自动轮播 + 手动拖动（无缝循环） ============ */
+  /* ============ 横向导航：JS 驱动自动轮播 + 手动拖动（无缝循环） ============ */
   var track = document.getElementById('navTrack');
   var marquee = document.getElementById('navMarquee');
   var originChips = Array.prototype.slice.call(document.querySelectorAll('#navMarquee .nav-chip'));
@@ -696,7 +669,7 @@
 
   /* offset：当前 translateX（负值向左移） */
   var offset = 0;
-  var autoSpeed = 0.5;   // 每秒移动像素数（缓慢）
+  var autoSpeed = 28;    // 每秒移动像素数（明显但舒缓）
   var dragging = false;
 
   function applyOffset(){
@@ -941,122 +914,125 @@
     });
   })();
 
-  /* ============ 顶部粒子光效（参考 Logo：橙红眼睛/彗星 + 螺旋汇聚 + 星尘） ============ */
+  /* ============ 顶部粒子光效：Logo 粒子化 + 收放节奏 + 体积光（细腻克制） ============ */
   (function initParticles(){
     var canvas = document.getElementById('particleCanvas');
     if(!canvas) return;
     var ctx = canvas.getContext('2d');
     var W, H, cx, cy;
+    var t = 0;   // 全局时间
 
     function resize(){
       var hero = canvas.parentElement;
       W = canvas.width = hero.offsetWidth;
       H = canvas.height = hero.offsetHeight;
-      // 中心亮点核心：位于左上偏中（参考 Logo 瞳孔 + 光晕位置）
       cx = W * 0.30;
-      cy = H * 0.32;
+      cy = H * 0.34;
     }
     resize();
     window.addEventListener('resize', resize);
 
-    /* 橙红同色系渐变（呼应 Logo #C0604A → #E0705A → 暖橙白） */
-    function logoColor(t){
-      // t: 0=深赭红, 1=亮橙白
-      var r = Math.round(192 + (255 - 192) * t);
-      var g = Math.round(96 + (235 - 96) * t);
-      var b = Math.round(74 + (200 - 74) * t);
+    /* 橙红同色系（呼应 Logo） */
+    function logoColor(k){
+      var r = Math.round(190 + (255 - 190) * k);
+      var g = Math.round(95 + (240 - 95) * k);
+      var b = Math.round(72 + (205 - 72) * k);
       return [r, g, b];
     }
 
-    /* 两类粒子：螺旋环绕粒子 + 星尘漂浮粒子 */
-    var spiral = [];
-    var dust = [];
-
-    /* 螺旋粒子：围绕中心核旋转汇聚 */
-    for(var i = 0; i < 40; i++){
-      spiral.push({
-        angle: Math.random() * Math.PI * 2,       // 当前角度
-        radius: 40 + Math.random() * 160,          // 距中心距离
-        speed: 0.004 + Math.random() * 0.008,      // 旋转速度
-        inward: 0.02 + Math.random() * 0.05,       // 向内汇聚速度
-        r: 1 + Math.random() * 2,
-        life: Math.random(),                        // 生命周期相位
-        colorT: 0.3 + Math.random() * 0.7           // 颜色深浅
+    /* 粒子：分层（内层亮/外层暗），每层有自己的呼吸相位 */
+    var particles = [];
+    var N = 64;   // 克制数量
+    for(var i = 0; i < N; i++){
+      particles.push({
+        baseAngle: Math.random() * Math.PI * 2,      // 基础角度
+        baseRadius: 30 + Math.random() * 170,         // 基础半径（分层）
+        rotSpeed: 0.003 + Math.random() * 0.006,      // 慢速旋转
+        phase: Math.random() * Math.PI * 2,           // 呼吸相位
+        r: 0.8 + Math.random() * 1.8,
+        depth: Math.random()                         // 层次因子
       });
     }
 
-    /* 星尘粒子：细微闪烁、缓慢漂浮 */
-    for(var j = 0; j < 90; j++){
-      dust.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: 0.5 + Math.random() * 1.2,
-        sx: -0.1 + Math.random() * 0.2,
-        sy: -0.15 - Math.random() * 0.3,
-        twinkle: Math.random() * Math.PI * 2,
-        alpha: 0.3 + Math.random() * 0.5
-      });
+    /* 呼吸节奏：整体聚合-发散（慢周期） */
+    function breath(now){
+      return 0.5 + 0.5 * Math.sin(now * 0.00035);   // 约 18 秒一个完整呼吸周期
     }
 
-    function draw(){
+    function draw(now){
       ctx.clearRect(0, 0, W, H);
+      var b = breath(now);
 
-      /* 中心亮点核心（对应 Logo 白色瞳孔） */
-      var coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 90);
-      coreGrad.addColorStop(0, 'rgba(255,245,230,0.9)');
-      coreGrad.addColorStop(0.3, 'rgba(224,112,90,0.5)');
-      coreGrad.addColorStop(1, 'rgba(224,112,90,0)');
+      /* 1. 体积光：多层柔光晕（模拟体积光，克制低透明度） */
+      var volLayers = [
+        { r: 150, a: 0.10 * (0.6 + b * 0.4) },
+        { r: 260, a: 0.05 * (0.6 + b * 0.4) },
+        { r: 380, a: 0.025 * (0.6 + b * 0.4) }
+      ];
+      volLayers.forEach(function(layer){
+        var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, layer.r);
+        g.addColorStop(0, 'rgba(224,112,90,' + layer.a.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(224,112,90,0)');
+        ctx.beginPath();
+        ctx.arc(cx, cy, layer.r, 0, Math.PI * 2);
+        ctx.fillStyle = g;
+        ctx.fill();
+      });
+
+      /* 2. 中心瞳孔核心（随呼吸轻微脉动） */
+      var coreR = 26 + b * 14;
+      var core = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 3);
+      core.addColorStop(0, 'rgba(255,248,238,' + (0.85 * (0.7 + b * 0.3)).toFixed(3) + ')');
+      core.addColorStop(0.4, 'rgba(224,112,90,' + (0.35 * (0.7 + b * 0.3)).toFixed(3) + ')');
+      core.addColorStop(1, 'rgba(224,112,90,0)');
       ctx.beginPath();
-      ctx.arc(cx, cy, 90, 0, Math.PI * 2);
-      ctx.fillStyle = coreGrad;
+      ctx.arc(cx, cy, coreR * 3, 0, Math.PI * 2);
+      ctx.fillStyle = core;
       ctx.fill();
 
-      /* 螺旋汇聚粒子 */
-      spiral.forEach(function(p){
-        p.angle += p.speed;
-        p.radius -= p.inward;
-        p.life += 0.01;
-        // 半径衰减到 0 后重置
-        if(p.radius < 15){
-          p.radius = 140 + Math.random() * 60;
-          p.angle = Math.random() * Math.PI * 2;
-        }
-        var x = cx + Math.cos(p.angle) * p.radius;
-        var y = cy + Math.sin(p.angle) * p.radius;
-        var t = p.colorT * (p.radius / 200);
-        var col = logoColor(t);
-        var a = 0.4 + 0.4 * Math.sin(p.life * 3);
+      /* 3. 螺旋粒子：随呼吸做聚合-发散，带层次 */
+      particles.forEach(function(p){
+        var angle = p.baseAngle + now * p.rotSpeed;
+        // 呼吸时半径整体缩放：发散时半径增大，聚合时缩小
+        var radius = p.baseRadius * (0.75 + b * 0.55);
+        var x = cx + Math.cos(angle) * radius;
+        var y = cy + Math.sin(angle) * radius * 0.82;  // 纵向略压扁，形成彗星椭圆
 
-        var grad = ctx.createRadialGradient(x, y, 0, x, y, p.r * 4);
-        grad.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')');
-        grad.addColorStop(1, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0)');
+        // 层次：内层粒子更亮，外层更暗
+        var k = 1 - (p.baseRadius / 200);   // 内层 k 大（亮），外层 k 小（暗）
+        var col = logoColor(0.3 + k * 0.6);
+        // 闪烁 + 呼吸叠加
+        var flicker = 0.5 + 0.5 * Math.sin(now * 0.002 + p.phase);
+        var a = (0.25 + 0.45 * k) * (0.5 + 0.5 * flicker);
+
+        var g = ctx.createRadialGradient(x, y, 0, x, y, p.r * 5);
+        g.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')');
+        g.addColorStop(1, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0)');
         ctx.beginPath();
-        ctx.arc(x, y, p.r * 4, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
+        ctx.arc(x, y, p.r * 5, 0, Math.PI * 2);
+        ctx.fillStyle = g;
         ctx.fill();
+
         ctx.beginPath();
         ctx.arc(x, y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,240,225,' + (a * 0.9).toFixed(3) + ')';
+        ctx.fillStyle = 'rgba(255,244,230,' + (a * 0.85).toFixed(3) + ')';
         ctx.fill();
       });
 
-      /* 星尘漂浮粒子（参考视频的细微闪烁） */
-      dust.forEach(function(d){
-        d.x += d.sx;
-        d.y += d.sy;
-        d.twinkle += 0.04;
-        if(d.y < -5 || d.x < -5 || d.x > W + 5){ d.y = H + 5; d.x = Math.random() * W; }
-        var flicker = 0.5 + 0.5 * Math.sin(d.twinkle);
-        var a = d.alpha * flicker;
+      /* 4. 稀疏星尘（克制：少量、极淡） */
+      for(var d = 0; d < 24; d++){
+        var dx = (d * 137.5 + now * 0.01) % W;
+        var dy = (d * 251.7 + Math.sin(now * 0.0008 + d) * 40) % H;
+        var da = 0.12 + 0.1 * Math.sin(now * 0.002 + d * 1.7);
         ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(245,235,220,' + a.toFixed(3) + ')';
+        ctx.arc(dx, dy, 0.8, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(245,235,220,' + Math.max(0, da).toFixed(3) + ')';
         ctx.fill();
-      });
+      }
 
       requestAnimationFrame(draw);
     }
-    draw();
+    requestAnimationFrame(draw);
   })();
 })();
 </script>
