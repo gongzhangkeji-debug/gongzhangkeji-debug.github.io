@@ -122,6 +122,8 @@
     border:2px solid var(--border-2);flex:0 0 auto;
     box-shadow:0 8px 24px rgba(0,0,0,.45);
   }
+  .avatar-link{display:inline-block;border-radius:50%;}
+  .avatar-link:active{transform:scale(.96);}
   .who-name{font-size:19px;font-weight:700;line-height:1.3;}
   .who-role{font-size:12.5px;color:var(--text-2);margin-top:2px;}
   .hero h1{
@@ -177,6 +179,34 @@
   }
   .chip:active{transform:scale(.94);background:var(--surface-2);color:var(--text);}
   .chip .ico{font-size:15px;}
+
+  /* 顶部动作条 */
+  .top-actions{display:flex;justify-content:flex-end;margin-bottom:10px;}
+  .desktop-link{
+    display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;
+    background:var(--surface);border:1px solid var(--border);font-size:12.5px;color:var(--text-2);
+  }
+  .desktop-link:active{transform:scale(.96);}
+
+  /* 首屏单一数据卡 */
+  .stat.hero-stat{
+    grid-column:1 / -1;display:flex;align-items:center;gap:14px;
+    padding:18px 18px;
+  }
+  .stat.hero-stat .num{font-size:28px;line-height:1.1;}
+  .stat.hero-stat .lab{margin-top:0;font-size:12.5px;}
+
+  /* 记忆点金句 */
+  .echo{padding:34px 20px 6px;}
+  .echo-line{
+    font-size:17px;line-height:1.75;font-weight:600;color:var(--text);text-align:center;
+  }
+  .echo-line em{
+    font-style:normal;
+    background:linear-gradient(120deg,#FFD9C4,#E0705A 55%,#C0604A);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;color:transparent;
+  }
 
   /* ---------- 项目卡片 ---------- */
   .cards{display:flex;flex-direction:column;gap:14px;margin-top:8px;}
@@ -327,8 +357,9 @@
 
   <!-- ============ Hero ============ -->
   <header class="hero">
+    <div class="top-actions"><a class="desktop-link" href="index.html?desktop=1">桌面版 ↗</a></div>
     <div class="hero-top">
-      <img class="avatar" src="avatar.jpg" alt="张协恒">
+      <a class="avatar-link" href="profile.html" aria-label="查看我的主页与简历"><img class="avatar" src="avatar.jpg" alt="张协恒"></a>
       <div>
         <div class="who-name">张协恒</div>
         <div class="who-role">心理学 × 设计 × AI 策略体验设计师</div>
@@ -337,17 +368,9 @@
     <h1>用心理学洞察设计行为，<br>用 AI 工具把洞察变成<span class="grad">可验证的产品</span>。</h1>
     <p class="sub">艺术设计 + 心理学背景，专注 AI 应用产品与行为设计。核心方法：<b>心理学洞察 × B=MAP 行为模型 × AI 合成用户验证</b>。</p>
     <div class="stats">
-      <div class="stat">
+      <div class="stat hero-stat">
         <div class="num c-mint">+7.8pp</div>
-        <div class="lab">「练后闭环」次日留存提升</div>
-      </div>
-      <div class="stat">
-        <div class="num c-purple">91.5%</div>
-        <div class="lab">品牌关注率（6 轮实验）</div>
-      </div>
-      <div class="stat">
-        <div class="num c-amber">10,000</div>
-        <div class="lab">AI 合成用户模拟</div>
+        <div class="lab">「练后闭环」方案使次日留存提升</div>
       </div>
     </div>
   </header>
@@ -361,6 +384,7 @@
       <button class="chip" data-target="proj-4"><span class="ico">🔍</span>竞品拆解</button>
       <button class="chip" data-target="video"><span class="ico">🎬</span>演示视频</button>
       <button class="chip" data-target="contact"><span class="ico">✉️</span>联系我</button>
+      <a class="chip" href="resume.pdf" target="_blank" rel="noopener"><span class="ico">📄</span>下载简历</a>
     </div>
   </nav>
 
@@ -380,7 +404,7 @@
           <div class="metrics">
             <span class="m-chip">+7.8pp 次留</span>
             <span class="m-chip purple">B=MAP</span>
-            <span class="m-chip">AI 合成用户</span>
+            <span class="m-chip amber">10,000 名合成用户</span>
           </div>
           <div class="more"><span>查看详情与 H5 原型</span><span>→</span></div>
         </div>
@@ -457,6 +481,10 @@
   </section>
 
   <!-- ============ 联系 ============ -->
+  <section class="echo">
+    <p class="echo-line">我不是一个只画界面的设计师。<br>我用心理学定义问题，用 AI 合成用户验证方案，用代码落地原型——<em>每一个设计决策，都有数据支撑。</em></p>
+  </section>
+
   <section class="sec contact" id="contact">
     <h2>把想法聊成产品</h2>
     <p>如果你在找一位既懂心理学、又能用 AI 工具落地的产品 / 行为设计师，欢迎联系我。</p>
@@ -468,7 +496,7 @@
     </div>
   </section>
 
-  <div class="foot">© 2026 张协恒 · 心理学 × 行为设计 × AI<br><a href="index.html?desktop=1" style="color:#5F6872;text-decoration:underline;">切换到桌面版</a></div>
+  <div class="foot">© 2026 张协恒 · 心理学 × 行为设计 × AI</div>
 </div>
 
 <!-- ============ Bottom Sheet：4 个项目详情 ============ -->
@@ -490,7 +518,7 @@
       <span class="m-chip amber">49 篇 + 15 份调研</span>
     </div>
     <div class="embed"><iframe data-src="xiaoyue-h5.html" title="小悦 H5 交互原型" loading="lazy"></iframe></div>
-    <a class="open-new" href="xiaoyue-h5.html" target="_blank" rel="noopener">在新窗口打开 H5 原型 ↗</a>
+    <a class="open-new" href="xiaoyue-h5.html" target="_blank" rel="noopener">体验可交互 H5 原型 ↗</a>
   </div>
   <div class="sheet-foot"><button class="btn-close" data-close>关闭</button></div>
 </div>
@@ -510,7 +538,7 @@
       <span class="m-chip">12 智能体</span>
     </div>
     <div class="embed"><iframe data-src="brand-report.pdf#toolbar=0&view=FitH" title="品牌验证报告"></iframe></div>
-    <a class="open-new" href="brand-report.pdf" target="_blank" rel="noopener">在新窗口打开完整报告 ↗</a>
+    <a class="open-new" href="brand-report.pdf" target="_blank" rel="noopener">查看完整报告（PDF）↗</a>
   </div>
   <div class="sheet-foot"><button class="btn-close" data-close>关闭</button></div>
 </div>
@@ -530,7 +558,7 @@
       <span class="m-chip purple">精益 MVP</span>
     </div>
     <div class="embed"><iframe data-src="retrospective.pdf#toolbar=0&view=FitH" title="硅元陶瓷复盘报告"></iframe></div>
-    <a class="open-new" href="retrospective.pdf" target="_blank" rel="noopener">在新窗口打开完整报告 ↗</a>
+    <a class="open-new" href="retrospective.pdf" target="_blank" rel="noopener">查看完整报告（PDF）↗</a>
   </div>
   <div class="sheet-foot"><button class="btn-close" data-close>关闭</button></div>
 </div>
@@ -550,7 +578,7 @@
       <span class="m-chip purple">优化优先级</span>
     </div>
     <div class="embed"><iframe data-src="competitor-report.pdf#toolbar=0&view=FitH" title="竞品行为设计漏洞报告"></iframe></div>
-    <a class="open-new" href="competitor-report.pdf" target="_blank" rel="noopener">在新窗口打开完整报告 ↗</a>
+    <a class="open-new" href="competitor-report.pdf" target="_blank" rel="noopener">查看完整报告（PDF）↗</a>
   </div>
   <div class="sheet-foot"><button class="btn-close" data-close>关闭</button></div>
 </div>

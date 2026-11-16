@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0B0D10">
+<title>张协恒 · 我的主页</title>
+<style>
+  :root{
+    --bg:#0B0D10; --bg-2:#11151A; --surface:#161B21; --surface-2:#1C222A;
+    --border:rgba(255,255,255,.07); --border-2:rgba(255,255,255,.13);
+    --text:#F2F4F6; --text-2:#9AA3AD; --text-3:#5F6872;
+    --mint:#3DD68C; --purple:#7C6CFF;
+    --safe-b:env(safe-area-inset-bottom,0px);
+    --ease:cubic-bezier(.22,.8,.3,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{overflow-x:hidden;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased;}
+  a{text-decoration:none;color:inherit;}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
+
+  .aura{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+  .aura::before{
+    content:'';position:absolute;width:70vw;height:70vw;left:-18vw;top:-20vw;border-radius:50%;
+    background:radial-gradient(circle,rgba(224,112,90,.22),rgba(224,112,90,0) 70%);
+    filter:blur(40px);
+  }
+  .aura::after{
+    content:'';position:absolute;width:60vw;height:60vw;right:-22vw;bottom:-20vw;border-radius:50%;
+    background:radial-gradient(circle,rgba(124,108,255,.16),rgba(124,108,255,0) 70%);
+    filter:blur(40px);
+  }
+
+  .bar{
+    position:sticky;top:0;z-index:20;background:rgba(11,13,16,.86);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+    padding:calc(env(safe-area-inset-top) + 12px) 0 12px;
+  }
+  .bar .in{max-width:920px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .back{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--text-2);
+    min-height:44px;padding:0 4px;transition:color .2s var(--ease);}
+  .back:hover{color:var(--text);}
+  .bar .tag{font-size:12.5px;color:var(--text-3);}
+
+  .main{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:44px 24px 80px;}
+
+  .hero{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin-bottom:30px;}
+  .avatar{
+    width:112px;height:112px;border-radius:50%;object-fit:cover;object-position:center 22%;
+    border:3px solid var(--border-2);box-shadow:0 16px 44px rgba(0,0,0,.5);flex:0 0 auto;
+  }
+  .hero h1{font-size:30px;font-weight:700;line-height:1.25;letter-spacing:-.02em;}
+  .hero .role{font-size:15px;color:var(--mint);margin-top:6px;font-weight:600;}
+  .hero .desc{font-size:14.5px;color:var(--text-2);margin-top:10px;max-width:52em;}
+
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:34px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:48px;padding:0 22px;border-radius:12px;font-size:14.5px;font-weight:600;
+    transition:transform .18s var(--ease),background .18s var(--ease);
+  }
+  .btn:active{transform:scale(.97);}
+  .btn-main{background:linear-gradient(120deg,var(--mint),#2FB878);color:#04170F;}
+  .btn-main:hover{filter:brightness(1.06);}
+  .btn-ghost{background:var(--surface);border:1px solid var(--border-2);color:var(--text);}
+  .btn-ghost:hover{background:var(--surface-2);}
+
+  .sec-title{font-size:19px;font-weight:700;margin-bottom:6px;}
+  .sec-sub{font-size:13.5px;color:var(--text-3);margin-bottom:18px;}
+
+  .paper{
+    background:#fff;border-radius:14px;overflow:hidden;
+    box-shadow:0 14px 40px rgba(0,0,0,.45);cursor:zoom-in;
+    border:1px solid rgba(255,255,255,.08);
+    transition:transform .28s var(--ease),box-shadow .28s var(--ease);
+    margin-bottom:16px;
+  }
+  .paper:hover{transform:translateY(-3px);box-shadow:0 22px 60px rgba(0,0,0,.55);}
+  .paper img{display:block;width:100%;height:auto;}
+  .hint{text-align:center;font-size:12.5px;color:var(--text-3);margin:6px 0 26px;}
+
+  .info{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;
+    margin-top:8px;
+  }
+  .info .item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+  .info .k{font-size:12px;color:var(--text-3);margin-bottom:3px;}
+  .info .v{font-size:14.5px;color:var(--text);word-break:break-all;}
+
+  .foot{text-align:center;font-size:12.5px;color:var(--text-3);padding:36px 24px calc(var(--safe-b) + 40px);}
+
+  /* 放大查看 */
+  .lightbox{
+    position:fixed;inset:0;z-index:99;background:rgba(6,7,9,.94);
+    display:none;align-items:flex-start;justify-content:center;
+    overflow:auto;-webkit-overflow-scrolling:touch;padding:20px 0 60px;
+  }
+  .lightbox.on{display:flex;}
+  .lightbox img{width:min(1000px,94vw);height:auto;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.7);}
+  .lb-close{
+    position:fixed;right:16px;top:calc(env(safe-area-inset-top) + 14px);z-index:100;
+    width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.12);
+    display:none;align-items:center;justify-content:center;font-size:20px;color:#fff;
+  }
+  .lightbox.on + .lb-close{display:flex;}
+
+  @media (max-width:640px){
+    .main{padding:26px 18px 60px;}
+    .hero{gap:16px;}
+    .avatar{width:84px;height:84px;}
+    .hero h1{font-size:24px;}
+    .hero .role{font-size:14px;}
+    .hero .desc{font-size:13.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="aura" aria-hidden="true"></div>
+
+<div class="bar">
+  <div class="in">
+    <a class="back" href="index.html">← 返回作品集</a>
+    <span class="tag">我的主页</span>
+  </div>
+</div>
+
+<main class="main">
+  <div class="hero">
+    <img class="avatar" src="avatar.jpg" alt="张协恒">
+    <div>
+      <h1>张协恒</h1>
+      <div class="role">AI 产品经理 / C 端用户体验设计师（行为设计方向）</div>
+      <p class="desc">以「心理学洞察 × 行为设计 × AI 工具落地」构建产品能力闭环——擅长用 B=MAP 行为模型拆解用户旅程、用 AI 合成用户做低成本验证、用扣子 n8n / WorkBuddy 把方案跑成可运行原型。</p>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-main" href="resume.pdf" target="_blank" rel="noopener">下载简历 PDF</a>
+    <a class="btn btn-ghost" href="mailto:gongzhangkeji@gmail.com">发邮件联系</a>
+    <a class="btn btn-ghost" href="index.html">看作品集</a>
+  </div>
+
+  <h2 class="sec-title">个人简历</h2>
+  <p class="sec-sub">共 3 页 · 点击任意一页可放大查看</p>
+
+  <div class="paper" data-src="resume-p1.jpg"><img src="resume-p1.jpg" alt="简历第 1 页" loading="lazy"></div>
+  <div class="paper" data-src="resume-p2.jpg"><img src="resume-p2.jpg" alt="简历第 2 页" loading="lazy"></div>
+  <div class="paper" data-src="resume-p3.jpg"><img src="resume-p3.jpg" alt="简历第 3 页" loading="lazy"></div>
+  <p class="hint">点击图片可放大 · 右上角可关闭</p>
+
+  <h2 class="sec-title" style="margin-top:26px;">联系方式</h2>
+  <p class="sec-sub">随时可以聊</p>
+  <div class="info">
+    <div class="item"><div class="k">邮箱</div><div class="v">gongzhangkeji@gmail.com</div></div>
+    <div class="item"><div class="k">电话</div><div class="v">187 6366 1918</div></div>
+    <div class="item"><div class="k">微信</div><div class="v">wx18763661918</div></div>
+    <div class="item"><div class="k">作品集</div><div class="v">gongzhangkeji-debug.github.io</div></div>
+  </div>
+</main>
+
+<div class="foot">© 2026 张协恒 · 心理学 × 行为设计 × AI</div>
+
+<div class="lightbox" id="lightbox"><img id="lbImg" src="" alt="放大的简历"></div>
+<button class="lb-close" id="lbClose" aria-label="关闭">✕</button>
+
+<script>
+(function(){
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lbImg');
+  var lbClose = document.getElementById('lbClose');
+
+  document.querySelectorAll('.paper').forEach(function(p){
+    p.addEventListener('click', function(){
+      lbImg.src = p.getAttribute('data-src');
+      lb.classList.add('on');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+  function close(){
+    lb.classList.remove('on');
+    lbImg.src = '';
+    document.body.style.overflow = '';
+  }
+  lbClose.addEventListener('click', close);
+  lb.addEventListener('click', function(e){ if(e.target === lb) close(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+})();
+</script>
+</body>
+</html>
