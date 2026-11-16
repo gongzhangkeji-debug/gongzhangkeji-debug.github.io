@@ -2,6 +2,19 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<script>
+/* 手机访问自动进入移动版；加 ?desktop=1 可强制查看桌面版 */
+(function(){
+  try{
+    var q = location.search || '';
+    if(q.indexOf('desktop=1') > -1) return;
+    var touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    if(touch && window.matchMedia('(max-width: 820px)').matches){
+      location.replace('index-m.html' + q);
+    }
+  }catch(e){}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="张协恒 · 心理学×设计×AI 策略体验设计师">
 <title>张协恒 · 心理学×设计×AI 策略体验设计师</title>
