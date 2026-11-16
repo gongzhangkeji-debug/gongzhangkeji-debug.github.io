@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作品集后台管理 · 本地演示模式</title>
+<!-- 拖拽排序库 SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<style>
+  :root{
+    /* 奶油白 + 薄荷绿配色，与作品集网站统一（浅色版） */
+    --cream:#FAF6EC;          /* 奶油白背景 */
+    --cream2:#F1EDE1;         /* 深一档奶油白 */
+    --card:#FFFDF8;           /* 卡片白 */
+    --mint:#A8D5BE;           /* 薄荷绿主色 */
+    --mint-soft:#DCEDE2;      /* 薄荷绿浅色 */
+    --mint-deep:#5E9B81;      /* 薄荷绿深色（文字/强调） */
+    --mint-ink:#3E6B58;       /* 薄荷绿墨色（正文） */
+    --ink:#3B4A43;            /* 主文字色（墨绿黑） */
+    --ink2:#7D8C83;           /* 次要文字色 */
+    --warn:#E2A14B;           /* 提示条琥珀色 */
+    --danger:#D96A5B;         /* 删除红 */
+    --line:rgba(94,155,129,.22);
+    --sh:0 10px 30px rgba(59,74,67,.10);
+    --radius:18px;
+    --ease:cubic-bezier(.22,.8,.3,1);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;}
+
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px;}
+
+  /* ============ 顶部提示条 ============ */
+  .notice{
+    background:var(--warn);
+    color:#fff;
+    text-align:center;
+    font-size:14px;
+    font-weight:500;
+    padding:12px 20px;
+    letter-spacing:.02em;
+  }
+
+  /* ============ 页头 ============ */
+  header{
+    padding:40px 0 8px;
+    display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  }
+  header h1{font-size:26px;font-weight:700;letter-spacing:-.01em;}
+  header p{font-size:14px;color:var(--ink2);margin-top:4px;}
+
+  /* ============ 拖拽上传区 ============ */
+  .dropzone{
+    margin:24px 0 32px;
+    border:2px dashed var(--mint);
+    border-radius:var(--radius);
+    background:var(--card);
+    padding:48px 24px;
+    text-align:center;
+    cursor:pointer;
+    transition:all .3s var(--ease);
+    position:relative;
+  }
+  .dropzone:hover{border-color:var(--mint-deep);background:var(--mint-soft);}
+  .dropzone.dragover{
+    border-color:var(--mint-deep);
+    background:var(--mint-soft);
+    transform:scale(1.01);
+    box-shadow:var(--sh);
+  }
+  .dropzone .dz-icon{
+    width:60px;height:60px;margin:0 auto 16px;
+    border-radius:16px;background:var(--mint-soft);
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;color:var(--mint-deep);
+  }
+  .dropzone .dz-title{font-size:16px;font-weight:600;color:var(--mint-ink);}
+  .dropzone .dz-sub{font-size:13px;color:var(--ink2);margin-top:6px;}
+  .dropzone input[type=file]{display:none;}
+
+  /* ============ 卡片列表 ============ */
+  .card-list{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:20px;padding-bottom:40px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:0 2px 10px rgba(59,74,67,.05);
+    transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  /* 拖拽时轻微放大 + 阴影（SortableJS 会给被拖拽元素加 .sortable-ghost / .sortable-chosen） */
+  .card.sortable-chosen{
+    transform:scale(1.03);
+    box-shadow:0 16px 40px rgba(59,74,67,.18);
+  }
+  .card.sortable-ghost{
+    opacity:.4;
+    border:2px dashed var(--mint);
+  }
+  .card .preview{
+    width:100%;height:150px;background:var(--cream2);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+  }
+  .card .preview img,
+  .card .preview video{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .card .preview .file-ico{font-size:40px;color:var(--ink2);}
+  .card .card-body{padding:14px 16px;}
+  .card .title-input{
+    width:100%;font:inherit;font-size:15px;font-weight:600;
+    color:var(--ink);border:1px solid transparent;
+    border-radius:8px;padding:6px 8px;background:transparent;
+    transition:border-color .2s var(--ease), background .2s var(--ease);
+  }
+  .card .title-input:hover{background:var(--cream);}
+  .card .title-input:focus{
+    outline:none;border-color:var(--mint);background:#fff;
+  }
+  .card .card-foot{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 16px 14px;
+  }
+  .card .type-tag{
+    font-size:12px;color:var(--mint-ink);background:var(--mint-soft);
+    padding:2px 10px;border-radius:999px;
+  }
+  .card .del-btn{
+    font-size:13px;color:var(--danger);
+    padding:4px 12px;border-radius:8px;
+    transition:background .2s var(--ease);
+  }
+  .card .del-btn:hover{background:rgba(217,106,91,.12);}
+
+  /* 空状态 */
+  .empty{
+    grid-column:1/-1;
+    text-align:center;color:var(--ink2);
+    padding:40px 0;font-size:14px;
+  }
+
+  /* ============ Toast 提示 ============ */
+  #toast{
+    position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;
+    padding:12px 24px;border-radius:12px;
+    font-size:14px;opacity:0;pointer-events:none;
+    transition:all .3s var(--ease);z-index:999;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    max-width:90vw;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #toast.error{background:var(--danger);}
+
+  @media (max-width:600px){
+    .card-list{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- 顶部提示条 -->
+<div class="notice">⚠️ 本地演示模式：数据保存在当前浏览器，刷新不丢失。</div>
+
+<div class="wrap">
+  <!-- 页头 -->
+  <header>
+    <div>
+      <h1>作品集后台管理</h1>
+      <p>上传图片 / 视频素材，编辑标题，拖拽排序——所有改动自动保存到本地。</p>
+    </div>
+    <div style="font-size:13px;color:var(--ink2);">
+      共 <b id="countNum" style="color:var(--mint-deep);">0</b> 个项目
+    </div>
+  </header>
+
+  <!-- 拖拽上传区 -->
+  <div class="dropzone" id="dropzone">
+    <div class="dz-icon">📤</div>
+    <div class="dz-title">拖拽文件到这里，或点击选择</div>
+    <div class="dz-sub">支持图片与视频（JPG / PNG / GIF / MP4 等），可多选批量上传</div>
+    <!-- 隐藏的文件输入，accept 限定图片和视频 -->
+    <input type="file" id="fileInput" accept="image/*,video/*" multiple>
+  </div>
+
+  <!-- 项目卡片列表（SortableJS 拖拽容器） -->
+  <div class="card-list" id="cardList"></div>
+</div>
+
+<!-- Toast 提示 -->
+<div id="toast"></div>
+
+<script>
+(function(){
+  /* ==================== 常量与 DOM ==================== */
+  var STORAGE_KEY = 'portfolio_admin_cards';   // localStorage 的键名
+  var MAX_STORAGE = 5 * 1024 * 1024;           // localStorage 通常上限约 5MB，超过则报错
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('fileInput');
+  var cardList = document.getElementById('cardList');
+  var countNum = document.getElementById('countNum');
+  var toast = document.getElementById('toast');
+
+  /* 当前内存中的卡片数据数组：每个元素 { id, title, dataUrl, type } */
+  var cards = [];
+
+  /* ==================== Toast 提示 ==================== */
+  var toastTimer = null;
+  function showToast(msg, isError){
+    toast.textContent = msg;
+    toast.className = isError ? 'error show' : 'show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.className = ''; }, 2600);
+  }
+
+  /* ==================== localStorage 读写（带异常保护） ==================== */
+  // 读取：页面加载时从 localStorage 恢复卡片
+  function loadFromStorage(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return [];
+      var data = JSON.parse(raw);
+      return Array.isArray(data) ? data : [];
+    }catch(e){
+      // localStorage 读取失败或数据损坏，返回空数组
+      console.warn('读取本地数据失败：', e);
+      return [];
+    }
+  }
+
+  // 保存：将当前卡片写入 localStorage，Base64 过大时捕获溢出异常
+  function saveToStorage(){
+    try{
+      var json = JSON.stringify(cards);
+      // 预先判断是否可能超出 localStorage 容量，给出更友好的提示
+      if(json.length > MAX_STORAGE){
+        showToast('⚠️ 数据过大，无法保存到本地（已接近浏览器存储上限）', true);
+        return false;
+      }
+      localStorage.setItem(STORAGE_KEY, json);
+      return true;
+    }catch(e){
+      // QuotaExceededError：Base64 过大导致 localStorage 溢出
+      showToast('⚠️ 存储空间不足，保存失败！请删除部分大文件或压缩素材', true);
+      console.warn('localStorage 写入失败（可能溢出）：', e);
+      return false;
+    }
+  }
+
+  /* ==================== 渲染卡片列表 ==================== */
+  function render(){
+    cardList.innerHTML = '';
+    if(cards.length === 0){
+      cardList.innerHTML = '<div class="empty">还没有项目，上传一个文件开始吧～</div>';
+    }
+    cards.forEach(function(card){
+      cardList.appendChild(buildCardEl(card));
+    });
+    updateCount();
+  }
+
+  // 构建单个卡片 DOM
+  function buildCardEl(card){
+    var el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = card.id;   // 记录 id，便于拖拽后定位
+
+    // 预览区：图片用 <img>，视频用 <video>，否则占位
+    var preview = document.createElement('div');
+    preview.className = 'preview';
+    if(card.type === 'image'){
+      var img = document.createElement('img');
+      img.src = card.dataUrl;
+      img.alt = card.title;
+      preview.appendChild(img);
+    } else if(card.type === 'video'){
+      var video = document.createElement('video');
+      video.src = card.dataUrl;
+      video.muted = true;      // 静音预览，避免自动出声
+      video.playsInline = true;
+      preview.appendChild(video);
+    } else {
+      preview.innerHTML = '<span class="file-ico">📄</span>';
+    }
+    el.appendChild(preview);
+
+    // 卡片主体：可编辑标题
+    var body = document.createElement('div');
+    body.className = 'card-body';
+    var input = document.createElement('input');
+    input.className = 'title-input';
+    input.type = 'text';
+    input.value = card.title || '未命名项目';
+    input.placeholder = '输入项目标题…';
+    // 标题编辑：失焦时保存
+    input.addEventListener('input', function(){
+      card.title = input.value;
+      saveToStorage();
+    });
+    body.appendChild(input);
+    el.appendChild(body);
+
+    // 卡片底部：类型标签 + 删除按钮
+    var foot = document.createElement('div');
+    foot.className = 'card-foot';
+    var tag = document.createElement('span');
+    tag.className = 'type-tag';
+    tag.textContent = card.type === 'image' ? '图片' : (card.type === 'video' ? '视频' : '文件');
+    var del = document.createElement('button');
+    del.className = 'del-btn';
+    del.textContent = '删除';
+    del.addEventListener('click', function(){
+      removeCard(card.id);
+    });
+    foot.appendChild(tag);
+    foot.appendChild(del);
+    el.appendChild(foot);
+
+    return el;
+  }
+
+  /* ==================== 卡片操作 ==================== */
+  // 添加卡片
+  function addCard(file){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var dataUrl = e.target.result;
+      var card = {
+        id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+        title: file.name.replace(/\.[^.]+$/, ''),  // 默认标题取文件名（去扩展名）
+        dataUrl: dataUrl,
+        type: file.type.indexOf('image') === 0 ? 'image' : (file.type.indexOf('video') === 0 ? 'video' : 'other')
+      };
+      cards.push(card);
+      render();
+      var ok = saveToStorage();
+      if(ok){ showToast('✅ 已添加「' + card.title + '」'); }
+      else {
+        // 保存失败则回滚（移除刚加的卡片）
+        cards.pop();
+        render();
+      }
+    };
+    reader.onerror = function(){
+      showToast('❌ 文件读取失败：' + file.name, true);
+    };
+    reader.readAsDataURL(file);   // 转 Base64
+  }
+
+  // 删除卡片
+  function removeCard(id){
+    var idx = cards.findIndex(function(c){ return c.id === id; });
+    if(idx > -1){
+      var name = cards[idx].title;
+      cards.splice(idx, 1);
+      render();
+      saveToStorage();
+      showToast('已删除「' + name + '」');
+    }
+  }
+
+  // 更新计数
+  function updateCount(){
+    countNum.textContent = cards.length;
+  }
+
+  /* ==================== 拖拽排序（SortableJS） ==================== */
+  function initSortable(){
+    // 若 SortableJS 未加载成功（CDN 失败），给出提示
+    if(typeof Sortable === 'undefined'){
+      console.warn('SortableJS 未加载，拖拽排序不可用');
+      return;
+    }
+    new Sortable(cardList, {
+      animation: 200,          // 拖拽动画时长（ms），配合 CSS 过渡更平滑
+      ghostClass: 'sortable-ghost',      // 占位元素样式（半透明虚线）
+      chosenClass: 'sortable-chosen',    // 被拖拽元素样式（放大+阴影）
+      onEnd: function(evt){
+        // 拖拽结束后，按 DOM 顺序重新排列 cards 数组，并保存
+        var newOrder = [];
+        var nodes = cardList.querySelectorAll('.card');
+        nodes.forEach(function(node){
+          var id = node.dataset.id;
+          var card = cards.find(function(c){ return c.id === id; });
+          if(card) newOrder.push(card);
+        });
+        cards = newOrder;
+        saveToStorage();
+        showToast('已更新排序');
+      }
+    });
+  }
+
+  /* ==================== 上传区交互 ==================== */
+  // 点击上传区 → 触发文件选择
+  dropzone.addEventListener('click', function(){
+    fileInput.click();
+  });
+  fileInput.addEventListener('change', function(){
+    handleFiles(fileInput.files);
+    fileInput.value = '';   // 清空，允许重复选择同一文件
+  });
+
+  // 拖拽文件到上传区
+  dropzone.addEventListener('dragover', function(e){
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+  dropzone.addEventListener('dragleave', function(e){
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+  });
+  dropzone.addEventListener('drop', function(e){
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  // 统一处理文件（批量）
+  function handleFiles(fileList){
+    var files = Array.from(fileList);
+    if(files.length === 0) return;
+    files.forEach(function(f){
+      addCard(f);
+    });
+  }
+
+  /* ==================== 初始化 ==================== */
+  cards = loadFromStorage();
+  render();
+  initSortable();
+})();
+</script>
+
+</body>
+</html>
