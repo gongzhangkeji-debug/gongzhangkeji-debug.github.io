@@ -429,12 +429,12 @@
     <h2 class="section-title fade-up">小悦 App 演示</h2>
     <p class="section-sub fade-up">1 分 45 秒完整演示：从首页到练后闭环预约提醒。</p>
     <div class="video-wrap" id="videoWrap">
-      <video controls preload="metadata" id="demoVideo" poster="video-poster.jpg">
+      <video controls playsinline webkit-playsinline preload="metadata" id="demoVideo" poster="video-poster.jpg">
         <source src="xiaoyue-demo.mp4" type="video/mp4">
         你的浏览器不支持视频播放。
       </video>
     </div>
-    <div class="video-tip">💡 点击播放，进度条可拖拽跳转 · 空格 = 播放/暂停 · ←/→ = 快退/快进</div>
+    <div class="video-tip" id="videoTip">⏳ 正在检测播放环境…</div>
   </div>
 </section>
 
@@ -683,15 +683,21 @@
       });
     }
 
-    var tip = document.querySelector('.video-tip');
+    var tip = document.getElementById('videoTip') || document.querySelector('.video-tip');
     if(!tip){ tip = document.createElement('div'); }
 
     probeRange().then(function(rangeOK){
-      if(rangeOK) return;   // 服务器支持 Range，原生即可拖动
+      if(rangeOK){
+        // 服务器支持分段请求：原生进度条即可自由拖动
+        tip.textContent = '✅ 进度条可拖动 · 空格 = 播放/暂停 · ←/→ = 快退/快进';
+        tip.style.color = '#5E9B81';
+        return;
+      }
       // 不支持：用户一旦交互就整片加载
       video.addEventListener('pointerdown', loadAsBlob, { once: false });
       video.addEventListener('play', loadAsBlob, { once: false });
-      tip.textContent = '💡 点击播放后会自动下载整段视频，届时进度条可自由拖动';
+      tip.textContent = '⏳ 当前服务器不支持分段请求：点击播放后会自动下载整段视频（约 4MB），完成即可拖动进度条';
+      tip.style.color = '#E2A14B';
     });
   })();
 
@@ -894,7 +900,11 @@
         document.body.style.overflow = 'hidden';
         // 懒加载：仅在弹窗打开时才给 iframe 赋 src，避免首屏加载 PDF/H5
         modal.querySelectorAll('iframe[data-src]').forEach(function(f){
-          if(!f.getAttribute('src')){ f.setAttribute('src', f.getAttribute('data-src')); }
+          var cur = f.getAttribute('src');
+          // 关闭时会被置为 about:blank，这里一并视为“未加载”
+          if(!cur || cur === 'about:blank'){
+            f.setAttribute('src', f.getAttribute('data-src'));
+          }
         });
       }
     });
@@ -1058,6 +1068,21 @@
       });
     }
 
+    /* 弥散光粒子：大尺度柔光雾，缓慢飘散（背景氛围层） */
+    var mists = [];
+    for(var m = 0; m < 7; m++){
+      mists.push({
+        x: Math.random(),
+        y: Math.random(),
+        r: 120 + Math.random() * 180,          // 半径（很大很柔）
+        vx: (Math.random() - 0.5) * 0.00012,   // 极慢水平漂移（按视口比例）
+        vy: -0.00004 - Math.random() * 0.00008,// 极慢上升
+        alpha: 0.022 + Math.random() * 0.026,  // 极低透明度（克制）
+        phase: Math.random() * Math.PI * 2,
+        warm: Math.random()                 // 0=橙红 1=更亮暖白
+      });
+    }
+
     /* 呼吸节奏：整体聚合-发散（约 18 秒一个周期） */
     function breath(now){
       return 0.5 + 0.5 * Math.sin(now * 0.00035);
@@ -1066,6 +1091,27 @@
     function draw(now){
       ctx.clearRect(0, 0, W, H);
       var b = breath(now);
+
+      /* 0. 弥散光层：大尺度柔光雾缓慢飘散（最底层氛围） */
+      mists.forEach(function(mt){
+        mt.x += mt.vx; mt.y += mt.vy; mt.phase += 0.0006;
+        if(mt.y < -0.35){ mt.y = 1.25; mt.x = Math.random(); }
+        if(mt.x < -0.35){ mt.x = 1.25; }
+        if(mt.x > 1.25){ mt.x = -0.35; }
+
+        var mx = mt.x * W, my = mt.y * H;
+        var pulse = 0.65 + 0.35 * Math.sin(mt.phase);   // 明暗呼吸
+        var al = mt.alpha * pulse;
+        var cc = mt.warm > 0.5 ? [255, 214, 180] : [224, 112, 90];
+        var gg = ctx.createRadialGradient(mx, my, 0, mx, my, mt.r);
+        gg.addColorStop(0, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + al.toFixed(4) + ')');
+        gg.addColorStop(0.55, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',' + (al * 0.35).toFixed(4) + ')');
+        gg.addColorStop(1, 'rgba(' + cc[0] + ',' + cc[1] + ',' + cc[2] + ',0)');
+        ctx.beginPath();
+        ctx.arc(mx, my, mt.r, 0, Math.PI * 2);
+        ctx.fillStyle = gg;
+        ctx.fill();
+      });
 
       /* 1. 体积光：多层柔光晕 */
       var volLayers = [
