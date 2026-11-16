@@ -352,7 +352,7 @@
 
     <!-- 项目1：AI行为干预 -->
     <div class="project-card fade-up" id="proj-1" data-modal="modal-1">
-      <img class="thumb contain" src="icon-xiaoyue.png" alt="小悦AI健身App">
+      <img class="thumb contain" src="icon-xiaoyue.jpg" alt="小悦AI健身App">
       <div class="body">
         <span class="tag">C端 · 行为干预</span>
         <h3>小悦 AI 健身 App · 行为设计的完整闭环</h3>
@@ -384,7 +384,7 @@
 
     <!-- 项目3：B端复盘 -->
     <div class="project-card fade-up" id="proj-3" data-modal="modal-3">
-      <img class="thumb contain" src="shot-sicer.png" alt="硅元陶瓷">
+      <img class="thumb contain" src="shot-sicer.jpg" alt="硅元陶瓷">
       <div class="body">
         <span class="tag">B端 · 精益复盘</span>
         <h3>硅元陶瓷 AI 选品 · 失败复盘与方法论沉淀</h3>
@@ -400,7 +400,7 @@
 
     <!-- 项目4：竞品拆解 -->
     <div class="project-card fade-up" id="proj-4" data-modal="modal-4">
-      <img class="thumb contain" src="cover-competitor.png" alt="竞品行为设计漏洞报告">
+      <img class="thumb contain" src="cover-competitor.jpg" alt="竞品行为设计漏洞报告">
       <div class="body">
         <span class="tag">竞品 · 行为设计拆解</span>
         <h3>竞品行为设计漏洞报告 · B=MAP 用户旅程拆解</h3>
@@ -429,7 +429,7 @@
     <h2 class="section-title fade-up">小悦 App 演示</h2>
     <p class="section-sub fade-up">1 分 45 秒完整演示：从首页到练后闭环预约提醒。</p>
     <div class="video-wrap" id="videoWrap">
-      <video controls preload="auto" id="demoVideo" poster="video-poster.jpg">
+      <video controls preload="metadata" id="demoVideo" poster="video-poster.jpg">
         <source src="xiaoyue-demo.mp4" type="video/mp4">
         你的浏览器不支持视频播放。
       </video>
@@ -489,7 +489,7 @@
       <div class="m-sec">
         <h4>可交互演示（H5 内嵌）</h4>
         <div class="demo-frame">
-          <iframe src="xiaoyue-h5.html" title="小悦H5交互原型" loading="lazy"></iframe>
+          <iframe data-src="xiaoyue-h5.html" title="小悦H5交互原型"></iframe>
         </div>
         <p>下方是一个可直接操作的 H5 交互原型，可在窗口内点击、滚动体验完整流程。</p>
       </div>
@@ -522,7 +522,7 @@
       <div class="m-sec">
         <h4>完整验证报告</h4>
         <div class="pdf-window">
-          <iframe src="brand-report.pdf#toolbar=0&view=FitH" title="品牌验证报告PDF"></iframe>
+          <iframe data-src="brand-report.pdf#toolbar=0&view=FitH" title="品牌验证报告PDF"></iframe>
         </div>
         <div class="pdf-tip">🖱️ 滚轮上下滚动浏览完整报告</div>
       </div>
@@ -558,7 +558,7 @@
       <div class="m-sec">
         <h4>完整复盘报告</h4>
         <div class="pdf-window">
-          <iframe src="retrospective.pdf#toolbar=0&view=FitH" title="硅元复盘PDF"></iframe>
+          <iframe data-src="retrospective.pdf#toolbar=0&view=FitH" title="硅元复盘PDF"></iframe>
         </div>
         <div class="pdf-tip">🖱️ 滚轮上下滚动浏览完整报告</div>
       </div>
@@ -591,7 +591,7 @@
       <div class="m-sec">
         <h4>完整报告</h4>
         <div class="pdf-window">
-          <iframe src="competitor-report.pdf#toolbar=0&view=FitH" title="竞品行为设计漏洞报告PDF"></iframe>
+          <iframe data-src="competitor-report.pdf#toolbar=0&view=FitH" title="竞品行为设计漏洞报告PDF"></iframe>
         </div>
         <div class="pdf-tip">🖱️ 滚轮上下滚动浏览完整报告</div>
       </div>
@@ -827,7 +827,14 @@
       lastScrollY = window.scrollY;
       var modalId = card.getAttribute('data-modal');
       var modal = document.getElementById(modalId);
-      if(modal){ modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+      if(modal){
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // 懒加载：仅在弹窗打开时才给 iframe 赋 src，避免首屏加载 PDF/H5
+        modal.querySelectorAll('iframe[data-src]').forEach(function(f){
+          if(!f.getAttribute('src')){ f.setAttribute('src', f.getAttribute('data-src')); }
+        });
+      }
     });
   });
 
@@ -836,7 +843,9 @@
     document.querySelectorAll('.modal-mask').forEach(function(m){
       m.classList.remove('open');
       // 清空 iframe，避免关闭后继续播放音频/视频
-      m.querySelectorAll('iframe').forEach(function(f){ f.src = f.src; });
+      m.querySelectorAll('iframe[data-src]').forEach(function(f){
+        f.setAttribute('src', 'about:blank');
+      });
     });
     document.body.style.overflow = '';
     window.scrollTo(0, lastScrollY);
