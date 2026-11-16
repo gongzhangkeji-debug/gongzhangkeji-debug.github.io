@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- 移动端入口短链：/m  →  自动进入移动版 index-m.html -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0B0D10">
+<title>张协恒 · 作品集</title>
+<style>
+  html,body{margin:0;height:100%;background:#0B0D10;color:#9AA3AD;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .box{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;}
+  .dot{width:10px;height:10px;border-radius:50%;background:#E0705A;
+    box-shadow:0 0 12px rgba(224,112,90,.9);animation:p 1.2s ease-in-out infinite;}
+  @keyframes p{0%,100%{opacity:.3;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
+  .t{font-size:14px;letter-spacing:.04em}
+  a{color:#3DD68C;font-size:14px;}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="dot"></div>
+    <div class="t">正在进入作品集…</div>
+    <a id="fallback" href="index-m.html">如果没有自动跳转，请点这里</a>
+  </div>
+<script>
+  (function(){
+    var q = location.search || '';
+    // 保留查询参数（例如 ?selftest=1）
+    location.replace('index-m.html' + q);
+  })();
+</script>
+</body>
+</html>
