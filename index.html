@@ -26,17 +26,36 @@
   html{-webkit-text-size-adjust:100%;}
 
   body{
-    background:var(--bg);
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(124,108,255,.14) 0%, rgba(124,108,255,0) 60%),
+      radial-gradient(900px 600px at 100% 12%, rgba(61,214,140,.08) 0%, rgba(61,214,140,0) 55%),
+      var(--bg);
     color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
     line-height:1.7;
     -webkit-font-smoothing:antialiased;
+    background-attachment:fixed;
   }
 
   /* 真机修复③：滚动性能 */
   .site{
     transform:translateZ(0);
     -webkit-overflow-scrolling:touch;
+  }
+
+  /* 滚动淡入 */
+  .fade-in{
+    opacity:0;
+    transform:translateY(22px);
+    transition:opacity .7s cubic-bezier(.22,.8,.3,1), transform .7s cubic-bezier(.22,.8,.3,1);
+    will-change:opacity,transform;
+  }
+  .fade-in.visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .fade-in{opacity:1;transform:none;transition:none;}
   }
 
   .container{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
@@ -51,6 +70,18 @@
     display:flex;
     align-items:center;
     padding:80px 0 60px;
+  }
+  .hero .avatar{
+    width:96px;
+    height:96px;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:center 22%;
+    border:2px solid var(--border);
+    box-shadow:0 8px 30px rgba(0,0,0,.35);
+    margin-bottom:28px;
+    display:block;
+    background:var(--surface);
   }
   .hero .eyebrow{
     display:inline-block;
@@ -212,11 +243,12 @@
   <!-- ========== 首屏：定位 ========== -->
   <section class="hero" id="top">
     <div class="container">
-      <span class="eyebrow">AI 产品 · 行为设计 · 心理学</span>
-      <h1>用心理学洞察设计行为，<br>用 AI 工具把洞察变成可验证的产品。</h1>
-      <p class="subtitle">我是张协恒，艺术设计 + 心理学背景，专注 AI 应用产品、策略产品与行为设计。核心方法：心理学洞察 × B=MAP 行为模型 × AI 合成用户模拟验证。</p>
+      <img class="avatar fade-in" src="avatar.png" alt="张协恒">
+      <span class="eyebrow fade-in">AI 产品 · 行为设计 · 心理学</span>
+      <h1 class="fade-in">用心理学洞察设计行为，<br>用 AI 工具把洞察变成可验证的产品。</h1>
+      <p class="subtitle fade-in">我是张协恒，艺术设计 + 心理学背景，专注 AI 应用产品、策略产品与行为设计。核心方法：心理学洞察 × B=MAP 行为模型 × AI 合成用户模拟验证。</p>
 
-      <div class="stats">
+      <div class="stats fade-in">
         <div class="stat">
           <div class="num purple">+7.8pp</div>
           <div class="label">AI合成用户验证的次日留存提升</div>
@@ -231,14 +263,14 @@
         </div>
       </div>
 
-      <a class="cta" href="#cases">看案例 ↓</a>
+      <a class="cta fade-in" href="#cases">看案例 ↓</a>
     </div>
   </section>
 
   <!-- ========== 案例屏：三张卡片 ========== -->
   <section class="cases" id="cases">
     <div class="container">
-      <div class="section-head">
+      <div class="section-head fade-in">
         <h2>精选案例</h2>
         <p>每件事，都用数据说话。</p>
       </div>
@@ -246,7 +278,7 @@
       <div class="case-grid">
 
         <!-- C端 · 行为干预 -->
-        <div class="case" id="case-c">
+        <div class="case fade-in" id="case-c">
           <div class="tag">C端 · 行为干预</div>
           <h3>身材焦虑健身 App：B=MAP 拆解与 AB 测试</h3>
           <p class="concl">用 B=MAP 模型定位行为卡点，1 万名 AI 合成用户模拟验证，方案 A 让次日留存显著提升。</p>
@@ -258,7 +290,7 @@
         </div>
 
         <!-- 品牌 · 视觉验证 -->
-        <div class="case" id="case-brand">
+        <div class="case fade-in" id="case-brand">
           <div class="tag">品牌 · 视觉验证</div>
           <h3>「心域航线」：命名与 Logo 的 AI 验证</h3>
           <p class="concl">600 虚拟人 × 12 智能体跑 6 轮实验，用数据推导出最优命名与视觉组合。</p>
@@ -270,7 +302,7 @@
         </div>
 
         <!-- B端 · 精益复盘 -->
-        <div class="case" id="case-b">
+        <div class="case fade-in" id="case-b">
           <div class="tag">B端 · 精益复盘</div>
           <h3>硅元陶瓷 AI 选品：一次失败的方法论沉淀</h3>
           <p class="concl">从失败项目里提炼「需求前置验证 + 精益 MVP」，把踩过的坑变成可复用的原则。</p>
@@ -287,7 +319,7 @@
 
   <!-- ========== 联系屏 ========== -->
   <section class="contact" id="contact">
-    <div class="container">
+    <div class="container fade-in">
       <h2>把想法聊成产品</h2>
       <p>如果你在找一位既懂心理学、又能用 AI 工具落地的产品/行为设计师，欢迎联系我。</p>
       <a class="dl" href="resume.pdf" target="_blank">下载简历 PDF</a>
@@ -306,5 +338,23 @@
 
 </div>
 
+<script>
+  (function(){
+    var els = document.querySelectorAll('.fade-in');
+    if(!('IntersectionObserver' in window)){
+      els.forEach(function(el){ el.classList.add('visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>
 
 </body></html>
