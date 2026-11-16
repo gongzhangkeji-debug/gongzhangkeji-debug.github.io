@@ -260,11 +260,13 @@
   .video-section{padding:20px 0 60px;}
   .video-wrap{
     width:100%;max-width:680px;margin:0 auto;
-    aspect-ratio:16/9;
+    position:relative;
+    padding-top:56.25%;   /* 16:9 比例（兼容性更好） */
     border-radius:16px;border:1px solid var(--border-2);
-    background:#000;overflow:hidden;position:relative;
+    background:#000;overflow:hidden;
   }
   .video-wrap video{
+    position:absolute;top:0;left:0;
     width:100%;height:100%;object-fit:contain;display:block;
     background:#000;
   }
@@ -426,7 +428,7 @@
   <div class="wrap">
     <h2 class="section-title fade-up">小悦 App 演示</h2>
     <p class="section-sub fade-up">1 分 45 秒完整演示：从首页到练后闭环预约提醒。</p>
-    <div class="video-wrap fade-up" id="videoWrap">
+    <div class="video-wrap" id="videoWrap">
       <video controls preload="auto" id="demoVideo" poster="video-poster.jpg">
         <source src="xiaoyue-demo.mp4" type="video/mp4">
         你的浏览器不支持视频播放。
