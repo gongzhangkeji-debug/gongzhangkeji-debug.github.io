@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="AI 应用产品 / 策略产品 / 行为设计师 · 心理学洞察 × 行为设计 × AI 工具落地">
+<title>张协恒 · AI 产品 / 行为设计师</title>
+<style>
+  :root{
+    --bg:#0F1014;
+    --surface:#181A20;
+    --surface-2:#1F222A;
+    --border:rgba(255,255,255,0.08);
+    --text:#F5F6F8;
+    --text-2:#A7ABB5;
+    --text-3:#6E7380;
+    --accent:#7C6CFF;
+    --accent-soft:rgba(124,108,255,0.16);
+    --green:#3DD68C;
+    --amber:#F5B945;
+    --radius:16px;
+    --maxw:1080px;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{-webkit-text-size-adjust:100%;}
+
+  body{
+    background:
+      radial-gradient(1100px 620px at 12% -8%, rgba(124,108,255,.14) 0%, rgba(124,108,255,0) 60%),
+      radial-gradient(900px 600px at 100% 12%, rgba(61,214,140,.08) 0%, rgba(61,214,140,0) 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    background-attachment:fixed;
+  }
+
+  /* 真机修复③：滚动性能 */
+  .site{
+    transform:translateZ(0);
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* 滚动淡入 */
+  .fade-in{
+    opacity:0;
+    transform:translateY(22px);
+    transition:opacity .7s cubic-bezier(.22,.8,.3,1), transform .7s cubic-bezier(.22,.8,.3,1);
+    will-change:opacity,transform;
+  }
+  .fade-in.visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .fade-in{opacity:1;transform:none;transition:none;}
+  }
+
+  .container{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ===== 首屏 ===== */
+  .hero{
+    min-height:100vh;
+    min-height:100svh;
+    display:flex;
+    align-items:center;
+    padding:80px 0 60px;
+  }
+  .hero .avatar{
+    width:96px;
+    height:96px;
+    border-radius:50%;
+    object-fit:cover;
+    object-position:center 22%;
+    border:2px solid var(--border);
+    box-shadow:0 8px 30px rgba(0,0,0,.35);
+    margin-bottom:28px;
+    display:block;
+    background:var(--surface);
+  }
+  .hero .eyebrow{
+    display:inline-block;
+    font-size:14px;
+    color:var(--accent);
+    letter-spacing:0.04em;
+    margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:44px;
+    font-weight:600;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    max-width:16em;
+    margin-bottom:24px;
+  }
+  .hero .subtitle{
+    font-size:18px;
+    color:var(--text-2);
+    max-width:34em;
+    margin-bottom:44px;
+  }
+  .stats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-bottom:48px;
+  }
+  .stat{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:16px 22px;
+    min-width:170px;
+  }
+  .stat .num{
+    font-size:26px;
+    font-weight:600;
+    line-height:1.2;
+    margin-bottom:4px;
+    white-space:nowrap;
+  }
+  .stat .num.purple{color:var(--accent);}
+  .stat .num.green{color:var(--green);}
+  .stat .num.amber{color:var(--amber);}
+  .stat .label{
+    font-size:13px;
+    color:var(--text-3);
+  }
+  .cta{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--accent);
+    color:#fff;
+    font-size:16px;
+    font-weight:500;
+    padding:14px 28px;
+    border-radius:12px;
+    transition:opacity .15s ease;
+  }
+  .cta:hover{opacity:.9;text-decoration:none;}
+
+  /* ===== 案例屏 ===== */
+  .cases{padding:80px 0;}
+  .section-head{margin-bottom:40px;}
+  .section-head h2{font-size:28px;font-weight:600;margin-bottom:8px;}
+  .section-head p{font-size:16px;color:var(--text-2);}
+  .case-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:20px;
+  }
+  .case{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+  }
+  .case .tag{
+    font-size:12px;
+    color:var(--text-3);
+    letter-spacing:0.03em;
+    margin-bottom:16px;
+  }
+  .case h3{font-size:20px;font-weight:600;margin-bottom:12px;line-height:1.4;}
+  .case .concl{font-size:15px;color:var(--text-2);margin-bottom:20px;flex:1;}
+  .case .metric{
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:20px;
+  }
+  .case .metric.purple{color:var(--accent);}
+  .case .metric.green{color:var(--green);}
+  .case .metric.amber{color:var(--amber);}
+  .case .methods{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .case .methods span{
+    font-size:12px;
+    color:var(--text-2);
+    background:var(--surface-2);
+    border-radius:6px;
+    padding:4px 10px;
+  }
+  .case .link{font-size:14px;font-weight:500;}
+
+  /* ===== 联系屏 ===== */
+  .contact{
+    padding:80px 0 100px;
+    text-align:center;
+  }
+  .contact h2{font-size:28px;font-weight:600;margin-bottom:12px;}
+  .contact p{font-size:16px;color:var(--text-2);margin-bottom:36px;}
+  .contact .dl{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--accent);
+    color:#fff;
+    font-size:16px;
+    font-weight:500;
+    padding:14px 32px;
+    border-radius:12px;
+    margin-bottom:28px;
+    transition:opacity .15s ease;
+  }
+  .contact .dl:hover{opacity:.9;text-decoration:none;}
+  .contact .info{font-size:15px;color:var(--text-2);}
+  .contact .info a{color:var(--text);}
+
+  footer{padding:24px 0;border-top:1px solid var(--border);}
+  footer .container{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--text-3);}
+
+  /* ===== 移动端 ===== */
+  @media (max-width:820px){
+    .hero h1{font-size:32px;}
+    .case-grid{grid-template-columns:1fr;}
+    .stat{min-width:0;flex:1 1 45%;}
+    footer .container{flex-direction:column;gap:8px;text-align:center;}
+  }
+
+  /* 真机修复①：iOS 安全区 */
+  @supports (padding: env(safe-area-inset-bottom)){
+    .contact{
+      padding-bottom:calc(100px + env(safe-area-inset-bottom));
+    }
+  }
+</style>
+</head>
+<body>
+<div class="site">
+
+  <!-- ========== 首屏：定位 ========== -->
+  <section class="hero" id="top">
+    <div class="container">
+      <img class="avatar fade-in" src="avatar.jpg" alt="张协恒">
+      <span class="eyebrow fade-in">AI 产品 · 行为设计 · 心理学</span>
+      <h1 class="fade-in">用心理学洞察设计行为，<br>用 AI 工具把洞察变成可验证的产品。</h1>
+      <p class="subtitle fade-in">我是张协恒，艺术设计 + 心理学背景，专注 AI 应用产品、策略产品与行为设计。核心方法：心理学洞察 × B=MAP 行为模型 × AI 合成用户模拟验证。</p>
+
+      <div class="stats fade-in">
+        <div class="stat">
+          <div class="num purple">+7.8pp</div>
+          <div class="label">AI合成用户验证的次日留存提升</div>
+        </div>
+        <div class="stat">
+          <div class="num green">7.7%→91.5%</div>
+          <div class="label">品牌命名与Logo的关注率提升</div>
+        </div>
+        <div class="stat">
+          <div class="num amber">10,000</div>
+          <div class="label">AI 合成用户模拟 AB 测试</div>
+        </div>
+      </div>
+
+      <a class="cta fade-in" href="#cases">看案例 ↓</a>
+    </div>
+  </section>
+
+  <!-- ========== 案例屏：三张卡片 ========== -->
+  <section class="cases" id="cases">
+    <div class="container">
+      <div class="section-head fade-in">
+        <h2>精选案例</h2>
+        <p>每件事，都用数据说话。</p>
+      </div>
+
+      <div class="case-grid">
+
+        <!-- C端 · 行为干预 -->
+        <div class="case fade-in" id="case-c">
+          <div class="tag">C端 · 行为干预</div>
+          <h3>身材焦虑健身 App：B=MAP 拆解与 AB 测试</h3>
+          <p class="concl">用 B=MAP 模型定位行为卡点，1 万名 AI 合成用户模拟验证，方案 A 让次日留存显著提升。</p>
+          <div class="metric purple">+7.8pp 次留</div>
+          <div class="methods">
+            <span>B=MAP</span><span>AI合成用户</span><span>扣子Agent</span><span>H5</span>
+          </div>
+          <a class="link" href="xiaoyue-h5.html">查看 H5 交互原型 →</a>
+        </div>
+
+        <!-- 品牌 · 视觉验证 -->
+        <div class="case fade-in" id="case-brand">
+          <div class="tag">品牌 · 视觉验证</div>
+          <h3>「心域航线」：命名与 Logo 的 AI 验证</h3>
+          <p class="concl">600 虚拟人 × 12 智能体跑 6 轮实验，用数据推导出最优命名与视觉组合。</p>
+          <div class="metric green">7.7% → 91.5%</div>
+          <div class="methods">
+            <span>600虚拟人</span><span>12智能体</span><span>6轮实验</span>
+          </div>
+          <a class="link" href="brand-report.pdf" target="_blank">查看验证报告 →</a>
+        </div>
+
+        <!-- B端 · 精益复盘 -->
+        <div class="case fade-in" id="case-b">
+          <div class="tag">B端 · 精益复盘</div>
+          <h3>硅元陶瓷 AI 选品：一次失败的方法论沉淀</h3>
+          <p class="concl">从失败项目里提炼「需求前置验证 + 精益 MVP」，把踩过的坑变成可复用的原则。</p>
+          <div class="metric amber">复盘</div>
+          <div class="methods">
+            <span>需求前置验证</span><span>精益MVP</span>
+          </div>
+          <a class="link" href="retrospective.pdf" target="_blank">查看复盘全文 →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 联系屏 ========== -->
+  <section class="contact" id="contact">
+    <div class="container fade-in">
+      <h2>把想法聊成产品</h2>
+      <p>如果你在找一位既懂心理学、又能用 AI 工具落地的产品/行为设计师，欢迎联系我。</p>
+      <a class="dl" href="resume.pdf" target="_blank">下载简历 PDF</a>
+      <div class="info">
+        邮箱：<a href="mailto:gongzhangkeji@gmail.com">gongzhangkeji@gmail.com</a><br>
+        微信：wx18763661918</div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <span style="white-space:pre-wrap">© 2026 张协恒</span>
+      <span>心理学 × 行为设计 × AI</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.fade-in');
+    if(!('IntersectionObserver' in window)){
+      els.forEach(function(el){ el.classList.add('visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+
+</body></html>
