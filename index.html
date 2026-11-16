@@ -633,6 +633,66 @@
   function playDrip(){ playSound(880); }
   function playClose(){ playSound(520); }
 
+  /* ============ 视频进度条修复（兼容不支持 Range 的服务器） ============ */
+  (function fixVideoSeek(){
+    var video = document.getElementById('demoVideo');
+    if(!video) return;
+    var sourceEl = video.querySelector('source');
+    if(!sourceEl) return;
+    var src = sourceEl.getAttribute('src');
+
+    // 1) 探测服务器是否支持 Range（分段请求）
+    function probeRange(){
+      return new Promise(function(resolve){
+        if(!window.fetch || !window.AbortController){ resolve(true); return; }
+        var ac = new AbortController();
+        fetch(src, { headers: {'Range': 'bytes=0-1'}, signal: ac.signal })
+          .then(function(r){
+            var ok = (r.status === 206);
+            try{ ac.abort(); }catch(e){}   // 拿到状态码就中断，避免下载整个文件
+            resolve(ok);
+          })
+          .catch(function(){ resolve(true); });  // 探测失败按“支持”处理，不误伤
+      });
+    }
+
+    // 2) 不支持 Range 时：整片下载为 Blob，本地播放可自由拖动进度条
+    var blobLoaded = false, loading = false;
+    function loadAsBlob(){
+      if(blobLoaded || loading) return;
+      loading = true;
+      tip.textContent = '⏳ 正在下载视频以便支持进度条拖动…';
+      fetch(src).then(function(r){ return r.blob(); }).then(function(blob){
+        var url = URL.createObjectURL(blob);
+        var t = video.currentTime || 0;
+        var wasPlaying = !video.paused;
+        video.src = url;
+        video.load();
+        video.addEventListener('loadedmetadata', function once(){
+          video.removeEventListener('loadedmetadata', once);
+          if(t > 0){ try{ video.currentTime = t; }catch(e){} }
+          if(wasPlaying){ video.play().catch(function(){}); }
+          tip.textContent = '✅ 进度条已可拖动 · 空格 = 播放/暂停 · ←/→ = 快退/快进';
+        });
+        blobLoaded = true; loading = false;
+      }).catch(function(){
+        loading = false;
+        tip.textContent = '💡 点击播放，空格 = 播放/暂停 · ←/→ = 快退/快进';
+      });
+    }
+
+    var tip = document.querySelector('.video-tip');
+    if(!tip){ tip = document.createElement('div'); }
+
+    probeRange().then(function(rangeOK){
+      if(rangeOK) return;   // 服务器支持 Range，原生即可拖动
+      // 不支持：用户一旦交互就整片加载
+      video.addEventListener('pointerdown', loadAsBlob, { once: false });
+      video.addEventListener('play', loadAsBlob, { once: false });
+      tip.textContent = '💡 点击播放后会自动下载整段视频，届时进度条可自由拖动';
+    });
+  })();
+
   /* ============ 横向导航：JS 驱动自动轮播 + 手动拖动（无缝循环） ============ */
   var track = document.getElementById('navTrack');
   var marquee = document.getElementById('navMarquee');
