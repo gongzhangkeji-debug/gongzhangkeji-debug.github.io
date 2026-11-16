@@ -53,9 +53,18 @@
     .fade-up{opacity:1;transform:none;transition:none;}
   }
 
-  /* ============ Hero 首屏 ============ */
-  .hero{min-height:92vh;display:flex;align-items:center;padding:70px 0 40px;}
-  .hero-inner{width:100%;}
+  /* ============ 首屏 Hero ============ */
+  .hero{
+    position:relative;
+    min-height:92vh;display:flex;align-items:center;padding:70px 0 40px;
+    overflow:hidden;
+  }
+  /* 顶部粒子光效画布（背景） */
+  #particleCanvas{
+    position:absolute;inset:0;width:100%;height:100%;
+    pointer-events:none;z-index:0;
+  }
+  .hero-inner{width:100%;position:relative;z-index:1;}
   .hero h1{
     font-size:clamp(34px,6vw,62px);font-weight:700;line-height:1.12;
     letter-spacing:-.02em;margin-bottom:24px;max-width:14em;
@@ -99,23 +108,34 @@
   }
   .nav-inner{display:flex;align-items:center;gap:8px;position:relative;}
   .nav-strip .scroll-track{
-    flex:1;display:flex;gap:12px;overflow:hidden;
+    flex:1;overflow:hidden;
     cursor:grab;user-select:none;padding:6px 0;
-    will-change:transform;
     /* 边缘淡出 mask */
     -webkit-mask-image:linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
     mask-image:linear-gradient(to right, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
   }
   .nav-strip .scroll-track.dragging{cursor:grabbing;}
+  /* marquee 内容：由 JS 驱动 transform 实现自动轮播 + 手动拖动 */
+  .marquee{
+    display:flex;gap:12px;width:max-content;
+    will-change:transform;
+  }
   .nav-chip{
     flex:0 0 auto;display:flex;align-items:center;gap:10px;
     background:var(--surface);border:1px solid var(--border);
     border-radius:999px;padding:9px 18px 9px 10px;
     font-size:14px;color:var(--text-2);white-space:nowrap;
-    transition:transform .25s var(--ease), opacity .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease);
-    will-change:transform,opacity;
+    transition:border-color .25s var(--ease), color .25s var(--ease), background .25s var(--ease);
   }
   .nav-chip:hover{border-color:var(--border-2);color:var(--text);}
+  /* 鼠标触碰 chip 时跳动放大 */
+  .nav-chip:hover{animation:chipBounce .35s var(--ease);}
+  @keyframes chipBounce{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.12);}
+    70%{transform:scale(0.98);}
+    100%{transform:scale(1.06);}
+  }
   .nav-chip .chip-ico{
     width:30px;height:30px;border-radius:50%;object-fit:cover;
     flex:0 0 auto;background:var(--surface-2);
@@ -235,20 +255,12 @@
     display:flex;align-items:center;justify-content:center;background:#000;
   }
   .video-wrap:fullscreen video{width:100%;height:100%;object-fit:contain;}
-  /* 自定义全屏按钮 */
-  .fullscreen-btn{
-    position:absolute;right:12px;bottom:12px;z-index:5;
-    width:36px;height:36px;border-radius:50%;
-    background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);
-    display:flex;align-items:center;justify-content:center;
-    font-size:16px;color:#fff;transition:all .25s var(--ease);
-  }
-  .fullscreen-btn:hover{background:rgba(0,0,0,.8);transform:scale(1.08);}
 
   /* ============ 视频区 ============ */
   .video-section{padding:20px 0 60px;}
   .video-wrap{
-    width:380px;height:380px;margin:0 auto;
+    width:100%;max-width:680px;margin:0 auto;
+    aspect-ratio:16/9;
     border-radius:16px;border:1px solid var(--border-2);
     background:#000;overflow:hidden;position:relative;
   }
@@ -305,6 +317,7 @@
 
 <!-- ============ 首屏 Hero ============ -->
 <section class="hero" id="top">
+  <canvas id="particleCanvas"></canvas>
   <div class="wrap hero-inner">
     <div class="hero-top fade-up">
       <img class="avatar" src="avatar.jpg" alt="张协恒">
@@ -327,18 +340,19 @@
 <nav class="nav-strip" id="navStrip">
   <div class="wrap">
     <div class="nav-inner">
-      <button class="nav-arrow" id="navArrowLeft" title="向左滚动">←</button>
+      <button class="nav-arrow" id="navArrowLeft" title="向左切换">←</button>
       <div class="scroll-track" id="navTrack">
-        <button class="nav-chip" data-target="proj-1"><span class="chip-ico emoji">🏃</span> AI 行为干预</button>
-        <button class="nav-chip" data-target="proj-2"><span class="chip-ico emoji">🎨</span> 品牌验证</button>
-        <button class="nav-chip" data-target="proj-3"><span class="chip-ico emoji">🏺</span> B端复盘</button>
-        <button class="nav-chip" data-target="proj-4"><span class="chip-ico emoji">🔍</span> 竞品拆解</button>
-        <button class="nav-chip" data-target="video"><span class="chip-ico emoji">🎬</span> 演示视频</button>
-        <button class="nav-chip" data-target="contact"><span class="chip-ico emoji">✉️</span> 联系我</button>
+        <div class="marquee" id="navMarquee">
+          <button class="nav-chip" data-target="proj-1"><span class="chip-ico emoji">🏃</span> AI 行为干预</button>
+          <button class="nav-chip" data-target="proj-2"><span class="chip-ico emoji">🎨</span> 品牌验证</button>
+          <button class="nav-chip" data-target="proj-3"><span class="chip-ico emoji">🏺</span> B端复盘</button>
+          <button class="nav-chip" data-target="proj-4"><span class="chip-ico emoji">🔍</span> 竞品拆解</button>
+          <button class="nav-chip" data-target="video"><span class="chip-ico emoji">🎬</span> 演示视频</button>
+          <button class="nav-chip" data-target="contact"><span class="chip-ico emoji">✉️</span> 联系我</button>
+        </div>
       </div>
-      <button class="nav-arrow" id="navArrowRight" title="向右滚动">→</button>
+      <button class="nav-arrow" id="navArrowRight" title="向右切换">→</button>
     </div>
-  </div>
 </nav>
 
 <!-- ============ 项目摘要区 ============ -->
@@ -426,7 +440,7 @@
     <h2 class="section-title fade-up">小悦 App 演示</h2>
     <p class="section-sub fade-up">1 分 45 秒完整演示：从首页到练后闭环预约提醒。</p>
     <div class="video-wrap fade-up" id="videoWrap">
-      <video controls preload="metadata" id="demoVideo">
+      <video controls preload="auto" id="demoVideo">
         <source src="xiaoyue-demo.mp4" type="video/mp4">
         你的浏览器不支持视频播放。
       </video>
@@ -434,9 +448,8 @@
         <span class="play-ico">▶</span>
         优化视觉落地展示
       </div>
-      <button class="fullscreen-btn" id="fullscreenBtn" title="全屏观看">⛶</button>
     </div>
-    <div class="video-tip">💡 点击播放后封面自动消失，右下角 ⛶ = 全屏铺满 · 空格 = 播放/暂停 · ←/→ = 快退/快进</div>
+    <div class="video-tip">💡 点击封面播放，进度条可拖拽跳转 · 空格 = 播放/暂停 · ←/→ = 快退/快进</div>
   </div>
 </section>
 
@@ -635,80 +648,33 @@
   function playDrip(){ playSound(880); }
   function playClose(){ playSound(520); }
 
-  /* ============ 视频：封面点击播放后彻底消失，确保 controls 完全可用 ============ */
+  /* ============ 视频：封面点击播放，播放后彻底消失（确保进度条可拖拽） ============ */
   var video = document.getElementById('demoVideo');
   var cover = document.getElementById('videoCover');
-  var videoWrap = document.getElementById('videoWrap');
-  var fullscreenBtn = document.getElementById('fullscreenBtn');
-
   if(video && cover){
     cover.addEventListener('click', function(){
       if(video.paused){ video.play(); }
     });
-    // 播放后封面彻底移除（display:none），确保时间轴、进度条、全屏按钮都能正常操作
     video.addEventListener('play', function(){ cover.style.display = 'none'; });
-    // 视频结束时不重新显示封面（避免再次遮挡）
   }
 
-  /* 自定义全屏：让视频本身全屏铺满 */
-  if(fullscreenBtn && video){
-    fullscreenBtn.addEventListener('click', function(){
-      playDrip();
-      if(!document.fullscreenElement){
-        // 进入全屏（用 video 元素，这样全屏后原生 controls 的退出按钮也能用）
-        if(video.requestFullscreen){
-          video.requestFullscreen();
-        } else if(video.webkitRequestFullscreen){
-          video.webkitRequestFullscreen();
-        } else if(video.webkitEnterFullscreen){
-          video.webkitEnterFullscreen();  // iOS Safari 专用
-        }
-      } else {
-        // 退出全屏
-        if(document.exitFullscreen){
-          document.exitFullscreen();
-        } else if(document.webkitExitFullscreen){
-          document.webkitExitFullscreen();
-        }
-      }
-    });
-    // 全屏状态变化时，调整视频铺满
-    video.addEventListener('fullscreenchange', function(){
-      if(document.fullscreenElement === video){
-        video.style.width = '100vw';
-        video.style.height = '100vh';
-        video.style.objectFit = 'contain';
-        video.style.background = '#000';
-      } else {
-        video.style.width = '';
-        video.style.height = '';
-        video.style.objectFit = '';
-        video.style.background = '';
-      }
-    });
-  }
-
-  /* ============ 横向导航：translateX 无缝循环 + 中间放大 + 边缘淡出 ============ */
+/* ============ 横向导航：JS 驱动自动轮播 + 手动拖动（无缝循环） ============ */
   var track = document.getElementById('navTrack');
-  var originChips = Array.prototype.slice.call(document.querySelectorAll('#navTrack .nav-chip'));
+  var marquee = document.getElementById('navMarquee');
+  var originChips = Array.prototype.slice.call(document.querySelectorAll('#navMarquee .nav-chip'));
 
   /* 音效区分：hover 用较高音（叮），click 用较低音（咚） */
   function playHover(){ playSound(1180); }
   function playClickNav(){ playSound(620); }
 
-  /* 复制 3 组按钮（共 4 组），保证任何滚动位置都有内容，实现无缝循环 */
-  var COPIES = 3;
-  for(var i = 0; i < COPIES; i++){
-    originChips.forEach(function(chip){
-      track.appendChild(chip.cloneNode(true));
-    });
-  }
-  var chips = Array.prototype.slice.call(document.querySelectorAll('#navTrack .nav-chip'));
-  var chipCount = originChips.length;   // 一组按钮数量
-  var chipWidth = 0;                     // 单个按钮（含 gap）的步进宽度
-  var setWidth = 0;                      // 一组按钮总宽度
+  /* 复制一组按钮（共 2 组），实现 marquee 无缝循环 */
+  originChips.forEach(function(chip){
+    marquee.appendChild(chip.cloneNode(true));
+  });
+  var chips = Array.prototype.slice.call(document.querySelectorAll('#navMarquee .nav-chip'));
+  var chipCount = originChips.length;
 
-  /* 绑定事件到所有按钮（含复制） */
+  /* 绑定事件 */
   chips.forEach(function(chip){
     chip.addEventListener('mouseenter', function(){ playHover(); });
     chip.addEventListener('click', function(){
@@ -719,139 +685,166 @@
     });
   });
 
-  /* 测量步进宽度（一个 chip + gap）和一组宽度 */
+  /* 测量一组宽度 */
+  var setWidth = 0;
   function measure(){
-    if(chips.length === 0) return;
+    if(chips.length < 2) return;
     var r0 = chips[0].getBoundingClientRect();
-    var r1 = chips[1].getBoundingClientRect();
-    chipWidth = r1.left - r0.left;                    // 相邻 chip 间距 = 步进
-    setWidth = chipWidth * chipCount;                 // 一组总宽
+    var r1 = chips[chipCount].getBoundingClientRect();  // 第二组第一个
+    setWidth = r1.left - r0.left;
   }
 
-  /* 用 translateX 驱动，offset 为当前偏移（负值向左移） */
-  var offset = 0;          // 当前 translateX（px）
-  var targetOffset = 0;    // 目标值
-  var animating = false;
+  /* offset：当前 translateX（负值向左移） */
+  var offset = 0;
+  var autoSpeed = 0.5;   // 每秒移动像素数（缓慢）
+  var dragging = false;
 
   function applyOffset(){
-    track.style.transform = 'translateX(' + offset + 'px)';
-    updateChips();
+    marquee.style.transform = 'translateX(' + offset + 'px)';
   }
-
-  /* 平滑动画到 targetOffset */
-  function animateTo(target){
-    targetOffset = target;
-    if(animating) return;
-    animating = true;
-    function step(){
-      var diff = targetOffset - offset;
-      if(Math.abs(diff) < 0.5){
-        offset = targetOffset;
-        normalize();
-        applyOffset();
-        animating = false;
-        return;
-      }
-      // 缓动逼近
-      offset += diff * 0.18;
-      normalize();
-      applyOffset();
-      requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  /* 无缝循环归位：offset 超出范围时，用模运算静默折返（视觉无跳变，因为内容重复） */
   function normalize(){
-    // offset 范围：[-setWidth, 0]，超出则折返到等价位置
+    // 无缝循环：offset 超出 [-setWidth, 0] 时折返
     while(offset < -setWidth){ offset += setWidth; }
     while(offset > 0){ offset -= setWidth; }
   }
 
-  /* 中间放大 + 边缘淡出：根据 chip 距视口中心的距离 */
-  function updateChips(){
-    var trackRect = track.getBoundingClientRect();
-    var centerX = trackRect.left + trackRect.width / 2;
-    chips.forEach(function(chip){
-      var r = chip.getBoundingClientRect();
-      var chipCenter = r.left + r.width / 2;
-      var dist = Math.abs(chipCenter - centerX);
-      var maxDist = trackRect.width / 2;
-      var t = Math.min(dist / maxDist, 1);
-      var scale = 1.15 - t * 0.30;
-      var opacity = 1 - t * 0.65;
-      chip.style.transform = 'scale(' + scale.toFixed(3) + ')';
-      chip.style.opacity = opacity.toFixed(3);
-    });
+  /* 自动轮播（requestAnimationFrame），悬停暂停，离开 2 秒后恢复 */
+  var lastTime = null;
+  var hoverPaused = false;
+  var resumeTimer = null;
+  function autoScroll(now){
+    if(!dragging && !hoverPaused){
+      if(lastTime !== null){
+        var dt = (now - lastTime) / 1000;
+        offset -= autoSpeed * dt;   // 向左缓慢滚动
+        normalize();
+        applyOffset();
+      }
+      lastTime = now;
+    } else {
+      lastTime = null;
+    }
+    requestAnimationFrame(autoScroll);
   }
 
-  /* 点击箭头：每次跳动一个 chip，循环往复 */
-  var arrowLeft = document.getElementById('navArrowLeft');
-  var arrowRight = document.getElementById('navArrowRight');
-  if(arrowLeft){
-    arrowLeft.addEventListener('click', function(){
-      playClickNav();
-      animateTo(offset + chipWidth);   // 向左 = offset 增加（内容右移）
-    });
-  }
-  if(arrowRight){
-    arrowRight.addEventListener('click', function(){
-      playClickNav();
-      animateTo(offset - chipWidth);   // 向右 = offset 减少（内容左移）
-    });
-  }
+  /* 鼠标悬停暂停 + 离开 2 秒后恢复 */
+  track.addEventListener('mouseenter', function(){
+    hoverPaused = true;
+    clearTimeout(resumeTimer);
+  });
+  track.addEventListener('mouseleave', function(){
+    clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(function(){
+      hoverPaused = false;
+    }, 2000);   // 2 秒后恢复自动轮播
+  });
 
-  /* 拖拽：跟随鼠标，整体轻微放大（跳动感） */
+  /* 手动拖动：按下暂停自动，拖动跟随鼠标 */
   var isDown = false, startX = 0, startOffset = 0;
   track.addEventListener('mousedown', function(e){
-    isDown = true; track.classList.add('dragging');
+    isDown = true; dragging = true; track.classList.add('dragging');
+    hoverPaused = true;
+    clearTimeout(resumeTimer);
     startX = e.pageX;
     startOffset = offset;
-    animating = false;   // 停止动画，改为手动
     e.preventDefault();
   });
   document.addEventListener('mouseup', function(){
-    isDown = false; track.classList.remove('dragging');
-    normalize();
-    applyOffset();
-  });
-  track.addEventListener('mouseleave', function(){
-    isDown = false; track.classList.remove('dragging');
+    if(isDown){
+      isDown = false; dragging = false; track.classList.remove('dragging');
+      normalize(); applyOffset();
+      // 松手后 2 秒恢复自动
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function(){ hoverPaused = false; }, 2000);
+    }
   });
   track.addEventListener('mousemove', function(e){
     if(!isDown) return;
     e.preventDefault();
     var dx = e.pageX - startX;
-    offset = startOffset + dx;   // 向右拖 dx>0，内容右移
+    offset = startOffset + dx;
     normalize();
     applyOffset();
   });
 
-  /* 触屏支持 */
-  var touchStartX = 0, touchStartOffset = 0;
+  /* 左右点击切换按钮：每次跳动一个 chip，循环往复 */
+  var chipStep = 0;
+  function measureStep(){
+    if(chips.length < 2) return;
+    var r0 = chips[0].getBoundingClientRect();
+    var r1 = chips[1].getBoundingClientRect();
+    chipStep = r1.left - r0.left;
+  }
+  function animateNavTo(target){
+    // 简单平滑动画到目标 offset
+    var startO = offset;
+    var diff = target - startO;
+    var startT = null;
+    function step(ts){
+      if(!startT) startT = ts;
+      var p = Math.min((ts - startT) / 350, 1);   // 350ms 动画
+      var eased = 1 - Math.pow(1 - p, 3);          // easeOutCubic
+      offset = startO + diff * eased;
+      normalize();
+      applyOffset();
+      if(p < 1){ requestAnimationFrame(step); }
+    }
+    requestAnimationFrame(step);
+  }
+  var arrowLeft = document.getElementById('navArrowLeft');
+  var arrowRight = document.getElementById('navArrowRight');
+  if(arrowLeft){
+    arrowLeft.addEventListener('click', function(){
+      playClickNav();
+      measureStep();
+      hoverPaused = true;
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function(){ hoverPaused = false; }, 3000);
+      animateNavTo(offset + chipStep);
+    });
+  }
+  if(arrowRight){
+    arrowRight.addEventListener('click', function(){
+      playClickNav();
+      measureStep();
+      hoverPaused = true;
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function(){ hoverPaused = false; }, 3000);
+      animateNavTo(offset - chipStep);
+    });
+  }
+
+  /* 触屏拖动 */
+  var tStartX = 0, tStartOffset = 0;
   track.addEventListener('touchstart', function(e){
-    touchStartX = e.touches[0].pageX;
-    touchStartOffset = offset;
-    animating = false;
+    dragging = true; hoverPaused = true;
+    clearTimeout(resumeTimer);
+    tStartX = e.touches[0].pageX;
+    tStartOffset = offset;
   });
   track.addEventListener('touchmove', function(e){
-    var dx = e.touches[0].pageX - touchStartX;
-    offset = touchStartOffset + dx;
+    var dx = e.touches[0].pageX - tStartX;
+    offset = tStartOffset + dx;
     normalize();
     applyOffset();
+  });
+  track.addEventListener('touchend', function(){
+    dragging = false;
+    resumeTimer = setTimeout(function(){ hoverPaused = false; }, 2000);
   });
 
   /* 初始化 */
   measure();
-  offset = -setWidth;   // 初始定位到第二组（保证左右都有内容）
+  offset = 0;
   applyOffset();
+  requestAnimationFrame(autoScroll);
   window.addEventListener('resize', function(){
     measure();
     normalize();
     applyOffset();
   });
 
-  /* ============ 项目卡片 → 打开 Modal ============ */
+/* ============ 项目卡片 → 打开 Modal ============ */
   var lastScrollY = 0;
   document.querySelectorAll('.project-card').forEach(function(card){
     card.addEventListener('click', function(){
@@ -946,6 +939,124 @@
 
       grid.appendChild(el);
     });
+  })();
+
+  /* ============ 顶部粒子光效（参考 Logo：橙红眼睛/彗星 + 螺旋汇聚 + 星尘） ============ */
+  (function initParticles(){
+    var canvas = document.getElementById('particleCanvas');
+    if(!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W, H, cx, cy;
+
+    function resize(){
+      var hero = canvas.parentElement;
+      W = canvas.width = hero.offsetWidth;
+      H = canvas.height = hero.offsetHeight;
+      // 中心亮点核心：位于左上偏中（参考 Logo 瞳孔 + 光晕位置）
+      cx = W * 0.30;
+      cy = H * 0.32;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    /* 橙红同色系渐变（呼应 Logo #C0604A → #E0705A → 暖橙白） */
+    function logoColor(t){
+      // t: 0=深赭红, 1=亮橙白
+      var r = Math.round(192 + (255 - 192) * t);
+      var g = Math.round(96 + (235 - 96) * t);
+      var b = Math.round(74 + (200 - 74) * t);
+      return [r, g, b];
+    }
+
+    /* 两类粒子：螺旋环绕粒子 + 星尘漂浮粒子 */
+    var spiral = [];
+    var dust = [];
+
+    /* 螺旋粒子：围绕中心核旋转汇聚 */
+    for(var i = 0; i < 40; i++){
+      spiral.push({
+        angle: Math.random() * Math.PI * 2,       // 当前角度
+        radius: 40 + Math.random() * 160,          // 距中心距离
+        speed: 0.004 + Math.random() * 0.008,      // 旋转速度
+        inward: 0.02 + Math.random() * 0.05,       // 向内汇聚速度
+        r: 1 + Math.random() * 2,
+        life: Math.random(),                        // 生命周期相位
+        colorT: 0.3 + Math.random() * 0.7           // 颜色深浅
+      });
+    }
+
+    /* 星尘粒子：细微闪烁、缓慢漂浮 */
+    for(var j = 0; j < 90; j++){
+      dust.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 0.5 + Math.random() * 1.2,
+        sx: -0.1 + Math.random() * 0.2,
+        sy: -0.15 - Math.random() * 0.3,
+        twinkle: Math.random() * Math.PI * 2,
+        alpha: 0.3 + Math.random() * 0.5
+      });
+    }
+
+    function draw(){
+      ctx.clearRect(0, 0, W, H);
+
+      /* 中心亮点核心（对应 Logo 白色瞳孔） */
+      var coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 90);
+      coreGrad.addColorStop(0, 'rgba(255,245,230,0.9)');
+      coreGrad.addColorStop(0.3, 'rgba(224,112,90,0.5)');
+      coreGrad.addColorStop(1, 'rgba(224,112,90,0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, 90, 0, Math.PI * 2);
+      ctx.fillStyle = coreGrad;
+      ctx.fill();
+
+      /* 螺旋汇聚粒子 */
+      spiral.forEach(function(p){
+        p.angle += p.speed;
+        p.radius -= p.inward;
+        p.life += 0.01;
+        // 半径衰减到 0 后重置
+        if(p.radius < 15){
+          p.radius = 140 + Math.random() * 60;
+          p.angle = Math.random() * Math.PI * 2;
+        }
+        var x = cx + Math.cos(p.angle) * p.radius;
+        var y = cy + Math.sin(p.angle) * p.radius;
+        var t = p.colorT * (p.radius / 200);
+        var col = logoColor(t);
+        var a = 0.4 + 0.4 * Math.sin(p.life * 3);
+
+        var grad = ctx.createRadialGradient(x, y, 0, x, y, p.r * 4);
+        grad.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + a.toFixed(3) + ')');
+        grad.addColorStop(1, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0)');
+        ctx.beginPath();
+        ctx.arc(x, y, p.r * 4, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x, y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,240,225,' + (a * 0.9).toFixed(3) + ')';
+        ctx.fill();
+      });
+
+      /* 星尘漂浮粒子（参考视频的细微闪烁） */
+      dust.forEach(function(d){
+        d.x += d.sx;
+        d.y += d.sy;
+        d.twinkle += 0.04;
+        if(d.y < -5 || d.x < -5 || d.x > W + 5){ d.y = H + 5; d.x = Math.random() * W; }
+        var flicker = 0.5 + 0.5 * Math.sin(d.twinkle);
+        var a = d.alpha * flicker;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(245,235,220,' + a.toFixed(3) + ')';
+        ctx.fill();
+      });
+
+      requestAnimationFrame(draw);
+    }
+    draw();
   })();
 })();
 </script>
