@@ -88,7 +88,7 @@
   <header>
     <div>
       <h1>作品集后台管理</h1>
-      <p>上传素材、编辑标题、拖拽排序——数据保存在云端，首页实时同步。</p>
+      <p>上传素材、编辑标题、拖拽排序——保存后首页即刻同步。</p>
     </div>
     <div style="font-size:13px;color:var(--ink2);">共 <b id="countNum" style="color:var(--mint-deep);">0</b> 个项目</div>
   </header>
@@ -97,6 +97,7 @@
     <h2>请先登录</h2>
     <p>后台管理需要登录身份才能写入云端数据。<br>登录后即可上传素材并同步到作品集首页。</p>
     <button class="btn btn-primary" id="signInBtn">使用 WorkBuddy 登录</button>
+    <button class="btn btn-ghost" id="localModeBtn" style="margin-left:8px;">不登录，用本地模式</button>
     <div class="err" id="loginErr"></div>
     <div class="hint">
       ⚠️ 登录需在<b>已发布的域名</b>下进行（本地预览或 github.io 会被拒绝）。
@@ -108,7 +109,7 @@
     <div class="dropzone" id="dropzone">
       <div class="dz-icon">📤</div>
       <div class="dz-title">拖拽文件到这里，或点击选择</div>
-      <div class="dz-sub">支持图片与视频，可多选；单文件建议不超过 2MB（存入云端）</div>
+      <div class="dz-sub">支持图片与视频，可多选；单文件建议不超过 2MB</div>
       <input type="file" id="fileInput" accept="image/*,video/*" multiple>
     </div>
     <div class="card-list" id="cardList"></div>
@@ -125,6 +126,51 @@
   var cloud = window.wbCloud || null;
   var session = null;
   var cards = [];
+
+  /* ---------- 本地缓存（与首页 localStorage 打通） ---------- */
+  var LS_KEY = 'portfolio_admin_cards';
+  function readLocal(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY) || '[]') || []; }catch(e){ return []; }
+  }
+  function writeLocal(list){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  /* ---------- 本地模式：不依赖云端，仅本机可见（与首页同源） ---------- */
+  var localMode = false;
+
+  function loadLocalCards(){
+    var list = readLocal();
+    cards = list.map(function(c, i){
+      return { id: 'L' + i, title: c.title, dataUrl: c.dataUrl, type: c.type };
+    });
+    render();
+  }
+  function persistLocal(){
+    writeLocal(cards.map(function(c){
+      return { title: c.title, dataUrl: c.dataUrl, type: c.type };
+    }));
+  }
+  function showLocalMode(){
+    localMode = true;
+    loginPanel.style.display = 'none';
+    adminApp.style.display = '';
+    loginErr.textContent = '';
+    whoBox.innerHTML = '本地模式：<b>仅本机可见</b>';
+    authActions.innerHTML = '<button class="btn btn-ghost" id="toCloudBtn">切换到云端</button>';
+    document.getElementById('toCloudBtn').addEventListener('click', function(){
+      localMode = false;
+      restoreSession();
+    });
+    loadLocalCards();
+    showToast('已进入本地模式（数据只存本机浏览器）');
+  }
+
+  /* 把云端数据同步成本地缓存，首页即可在云端不可达时回退显示 */
+  function syncCache(){
+    writeLocal(cards.map(function(c){
+      return { title: c.title, dataUrl: c.dataUrl, type: c.type };
+    }));
+  }
 
   var whoBox = document.getElementById('whoBox');
   var authActions = document.getElementById('authActions');
@@ -239,6 +285,7 @@
         cards = (res.data || []).map(function(r){
           return { id: r.id, title: r.title, dataUrl: r.data_url, type: r.type, sortOrder: r.sort_order };
         });
+        syncCache();          /* ← 同步到本地，打通首页 */
         render();
       })
       .catch(function(e){ showToast('读取失败：' + ((e && e.message) || '网络异常'), true); });
@@ -247,7 +294,7 @@
   function render(){
     cardList.innerHTML = '';
     if(cards.length === 0){
-      cardList.innerHTML = '<div class="empty">云端还没有项目，上传一个文件开始吧～</div>';
+      cardList.innerHTML = '<div class="empty">还没有项目，上传一个文件开始吧～</div>';
     }
     cards.forEach(function(card){
       var el = document.createElement('div');
@@ -299,6 +346,20 @@
   }
 
   function addCard(file){
+    if(localMode){
+      if(file.size > MAX_FILE * 3){
+        showToast('「' + file.name + '」过大，本地模式建议不超过 6MB', true); return;
+      }
+      var lr = new FileReader();
+      lr.onload = function(e){
+        var t = file.type.indexOf('image') === 0 ? 'image' : (file.type.indexOf('video') === 0 ? 'video' : 'other');
+        cards.unshift({ id: 'L' + Date.now(), title: file.name.replace(/\.[^.]+$/, ''), dataUrl: e.target.result, type: t });
+        persistLocal(); render();
+        showToast('✅ 已保存到本地（首页刷新即可看到）');
+      };
+      lr.readAsDataURL(file);
+      return;
+    }
     if(file.size > MAX_FILE){
       showToast('「' + file.name + '」超过 2MB，无法存入云端，请压缩后再上传', true);
       return;
@@ -323,6 +384,10 @@
   }
 
   function updateTitle(id, title){
+    if(localMode){
+      for(var i = 0; i < cards.length; i++){ if(cards[i].id === id){ cards[i].title = title; break; } }
+      persistLocal(); showToast('已更新标题'); return;
+    }
     cloud.database.from('projects')
       .update({ title: title })
       .eq('id', id)
@@ -333,6 +398,9 @@
           showToast('修改未生效：该条目可能不属于当前账号', true);
           return;
         }
+        var target = null;
+        for(var i = 0; i < cards.length; i++){ if(cards[i].id === id){ target = cards[i]; break; } }
+        if(target){ target.title = title; syncCache(); }
         showToast('已更新标题');
       })
       .catch(function(e){ showToast('修改失败：' + ((e && e.message) || '网络异常'), true); });
@@ -340,6 +408,10 @@
 
   function removeCard(id, title){
     if(!confirm('确定删除「' + (title || '该项目') + '」？此操作不可撤销。')) return;
+    if(localMode){
+      cards = cards.filter(function(c){ return c.id !== id; });
+      persistLocal(); render(); showToast('已删除'); return;
+    }
     cloud.database.from('projects')
       .delete()
       .eq('id', id)
@@ -350,6 +422,8 @@
           showToast('删除未生效：该条目可能不属于当前账号', true);
           return;
         }
+        cards = cards.filter(function(c){ return c.id !== id; });
+        syncCache();
         showToast('已删除');
         loadProjects();
       })
@@ -366,6 +440,13 @@
       chosenClass: 'sortable-chosen',
       onEnd: function(){
         var nodes = cardList.querySelectorAll('.card');
+        if(localMode){
+          var order = Array.prototype.map.call(nodes, function(n){ return n.dataset.id; });
+          var map = {};
+          cards.forEach(function(c){ map[String(c.id)] = c; });
+          cards = order.map(function(k){ return map[k]; }).filter(Boolean);
+          persistLocal(); render(); showToast('已更新排序'); return;
+        }
         var ids = Array.prototype.map.call(nodes, function(n){ return Number(n.dataset.id); });
         var chain = Promise.resolve();
         ids.forEach(function(id, idx){
@@ -395,6 +476,8 @@
   });
 
   document.getElementById('signInBtn').addEventListener('click', signIn);
+  var lb = document.getElementById('localModeBtn');
+  if(lb){ lb.addEventListener('click', showLocalMode); }
 
   startup();
 })();
