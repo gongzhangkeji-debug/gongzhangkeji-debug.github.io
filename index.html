@@ -675,6 +675,8 @@
           if(t > 0){ try{ video.currentTime = t; }catch(e){} }
           if(wasPlaying){ video.play().catch(function(){}); }
           tip.textContent = '✅ 进度条已可拖动 · 空格 = 播放/暂停 · ←/→ = 快退/快进';
+          tip.style.color = '#5E9B81';
+          selfTest('blob');
         });
         blobLoaded = true; loading = false;
       }).catch(function(){
@@ -686,11 +688,39 @@
     var tip = document.getElementById('videoTip') || document.querySelector('.video-tip');
     if(!tip){ tip = document.createElement('div'); }
 
+    /* 隐藏自测钩子：带 ?selftest=1 时把 seek 结果写入页面标题（便于自动化验证，正常访问无影响） */
+    function selfTest(mode){
+      if(location.search.indexOf('selftest') === -1) return;
+      var r = ['mode=' + mode];
+      function report(){ document.title = 'SELFTEST|' + r.join('|'); }
+      function attempt(){
+        var dur = video.duration;
+        if(!dur || !isFinite(dur)){ r.push('duration=NaN'); report(); return; }
+        r.push('dur=' + dur.toFixed(1));
+        var target = dur * 0.6;
+        try{ video.currentTime = target; }catch(e){ r.push('seek=EXC'); report(); return; }
+        setTimeout(function(){
+          var ok = Math.abs(video.currentTime - target) < 3;
+          r.push('seek=' + (ok ? 'OK' : 'FAIL'));
+          r.push('pos=' + video.currentTime.toFixed(1));
+          report();
+        }, 1200);
+      }
+      if(video.readyState >= 1){ attempt(); }
+      else {
+        video.addEventListener('loadedmetadata', attempt, { once: true });
+        setTimeout(function(){
+          if(document.title.indexOf('SELFTEST') === -1){ r.push('metadata-timeout'); report(); }
+        }, 10000);
+      }
+    }
+
     probeRange().then(function(rangeOK){
       if(rangeOK){
         // 服务器支持分段请求：原生进度条即可自由拖动
         tip.textContent = '✅ 进度条可拖动 · 空格 = 播放/暂停 · ←/→ = 快退/快进';
         tip.style.color = '#5E9B81';
+        selfTest('range206');
         return;
       }
       // 不支持：用户一旦交互就整片加载
@@ -698,6 +728,8 @@
       video.addEventListener('play', loadAsBlob, { once: false });
       tip.textContent = '⏳ 当前服务器不支持分段请求：点击播放后会自动下载整段视频（约 4MB），完成即可拖动进度条';
       tip.style.color = '#E2A14B';
+      // 自测模式下自动触发整片下载，便于验证 blob 方案
+      if(location.search.indexOf('selftest') !== -1){ loadAsBlob(); }
     });
   })();
 
