@@ -87,6 +87,34 @@
     from{transform:translate3d(0,0,0) scale(1);opacity:.22;}
     to{transform:translate3d(8vw,-10vh,0) scale(1.12);opacity:.36;}
   }
+  /* 漂浮大光斑：沿路径缓慢游走（呼应桌面端的漂浮光球） */
+  .orb{
+    position:absolute;width:64vw;height:64vw;border-radius:50%;
+    left:6vw;top:16vh;filter:blur(46px);opacity:.5;
+    background:radial-gradient(circle at 45% 45%, rgba(224,112,90,.92), rgba(224,112,90,0) 66%);
+    animation:orbPath 30s ease-in-out infinite alternate;
+    will-change:transform;
+  }
+  @keyframes orbPath{
+    0%{transform:translate3d(0,0,0) scale(1);}
+    33%{transform:translate3d(42vw,12vh,0) scale(1.14);}
+    66%{transform:translate3d(16vw,34vh,0) scale(.9);}
+    100%{transform:translate3d(56vw,6vh,0) scale(1.08);}
+  }
+  /* 上升火星：从底部缓缓飘起（篝火感） */
+  .ember{
+    position:absolute;bottom:-8px;width:4px;height:4px;border-radius:50%;
+    background:#FFD9BE;box-shadow:0 0 8px rgba(255,170,130,.95);
+    opacity:0;will-change:transform,opacity;
+    animation-name:rise;animation-timing-function:linear;animation-iteration-count:infinite;
+  }
+  @keyframes rise{
+    0%{opacity:0;transform:translate3d(0,0,0) scale(.55);}
+    14%{opacity:.9;}
+    55%{opacity:.5;}
+    100%{opacity:0;transform:translate3d(14px,-94vh,0) scale(1.2);}
+  }
+
   /* 微光点 */
   .spark{
     position:absolute;width:3px;height:3px;border-radius:50%;
@@ -104,7 +132,9 @@
     50%{transform:translate3d(4px,-26px,0);opacity:.62;}
   }
   @media (prefers-reduced-motion: reduce){
-    .blob,.spark{animation:none !important;}
+    /* 尊重系统偏好：不做位移跳动，但保留极慢的明暗呼吸 */
+    .blob,.orb{animation-duration:70s !important;}
+    .spark,.ember{animation:none !important;opacity:0 !important;}
   }
 
   /* ---------- 内容容器 ---------- */
@@ -384,6 +414,17 @@
   <div class="blob b1"></div>
   <div class="blob b2"></div>
   <div class="blob b3"></div>
+  <div class="orb"></div>
+  <span class="ember" style="left:6%;animation-duration:18s;animation-delay:0s;"></span>
+  <span class="ember" style="left:16%;animation-duration:22s;animation-delay:3s;"></span>
+  <span class="ember" style="left:27%;animation-duration:15s;animation-delay:7s;"></span>
+  <span class="ember" style="left:38%;animation-duration:20s;animation-delay:1s;"></span>
+  <span class="ember" style="left:49%;animation-duration:17s;animation-delay:9s;"></span>
+  <span class="ember" style="left:58%;animation-duration:23s;animation-delay:5s;"></span>
+  <span class="ember" style="left:69%;animation-duration:16s;animation-delay:11s;"></span>
+  <span class="ember" style="left:78%;animation-duration:21s;animation-delay:2s;"></span>
+  <span class="ember" style="left:88%;animation-duration:19s;animation-delay:6s;"></span>
+  <span class="ember" style="left:95%;animation-duration:24s;animation-delay:8s;"></span>
   <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
   <span class="spark s4"></span><span class="spark s5"></span><span class="spark s6"></span>
 </div>
@@ -683,7 +724,9 @@
   /* 聚光灯：让目标区块单独跳出 */
   var veil = document.createElement('div');
   veil.className = 'spot-veil';
-  document.body.appendChild(veil);
+  /* 关键：必须挂在 .page 内部（它自身有 z-index:1 的层叠上下文），
+     否则遮罩在 body 层级更高，目标永远浮不到上面 */
+  (document.querySelector('.page') || document.body).appendChild(veil);
   var spotTimer = null, spotEl = null;
   function spotlight(el){
     if(!el) return;
@@ -720,8 +763,51 @@
 
       spotlight(t);
       setActiveChip(id);
+
+      /* 把点中的快捷项滚到中间，方便确认 */
+      var row = document.getElementById('chips');
+      if(row){
+        var aim = chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2;
+        row.scrollTo({ left: Math.max(0, aim), behavior: 'smooth' });
+      }
     });
   });
+
+  /* ---------- 快捷栏自动轮播（触摸/滑动时暂停） ---------- */
+  (function autoScrollChips(){
+    var row = document.getElementById('chips');
+    if(!row) return;
+    var paused = false, dir = 1, resumeTimer = null;
+
+    /* 自动轮播期间必须关掉 scroll-snap，否则每一帧的微小滚动会被吸附回去 */
+    row.style.scrollSnapType = 'none';
+
+    function pause(){
+      paused = true;
+      row.style.scrollSnapType = 'x proximity';   /* 用户操控时恢复吸附 */
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(function(){
+        paused = false;
+        row.style.scrollSnapType = 'none';        /* 交回自动轮播 */
+      }, 3000);
+    }
+    ['pointerdown','touchstart','wheel'].forEach(function(ev){
+      row.addEventListener(ev, pause, { passive: true });
+    });
+
+    function step(){
+      if(!paused && !openSheetEl){
+        var max = row.scrollWidth - row.clientWidth;
+        if(max > 10){
+          row.scrollLeft += 0.38 * dir;
+          if(row.scrollLeft >= max - 2) dir = -1;
+          if(row.scrollLeft <= 2) dir = 1;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  })();
 
   /* 滚动时高亮当前区块 */
   var spyIds = ['proj-1','proj-2','proj-3','proj-4','video','contact'];
