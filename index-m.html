@@ -39,6 +39,7 @@
   html,body{
     width:100%;max-width:100%;
     overflow-x:hidden;                 /* 2. 禁止任何横向滚动 */
+    overflow-x:clip;                   /* 优先用 clip：不创建滚动容器，保证 sticky 生效 */
     background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
     font-size:15px;line-height:1.65;
@@ -107,8 +108,10 @@
   }
 
   /* ---------- 内容容器 ---------- */
-  .page{position:relative;z-index:1;width:100%;overflow-x:hidden;}
+  .page{position:relative;z-index:1;width:100%;}
   .sec{padding:0 18px;}
+  /* 跳转落点兜底留白（即使 JS 偏移失效也不会被吸顶栏压住） */
+  #proj-1,#proj-2,#proj-3,#proj-4,#video,#contact{scroll-margin-top:104px;}
   .sec-title{font-size:20px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px;}
   .sec-sub{font-size:13.5px;color:var(--text-2);margin-bottom:16px;}
 
@@ -178,6 +181,25 @@
     transition:transform .16s var(--ease),background .16s var(--ease),color .16s var(--ease);
   }
   .chip:active{transform:scale(.94);background:var(--surface-2);color:var(--text);}
+  /* 当前所在区块高亮 */
+  .chip.active{
+    background:rgba(61,214,140,.14);
+    border-color:rgba(61,214,140,.55);
+    color:var(--mint);
+    box-shadow:0 0 0 3px rgba(61,214,140,.10);
+  }
+  /* 跳转落点高亮 */
+  .flash{
+    outline:2px solid rgba(61,214,140,.8);
+    outline-offset:6px;
+    border-radius:16px;
+    animation:flashRing 1.9s var(--ease) forwards;
+  }
+  @keyframes flashRing{
+    0%{outline-color:rgba(61,214,140,0);}
+    16%{outline-color:rgba(61,214,140,.85);}
+    100%{outline-color:rgba(61,214,140,0);}
+  }
   .chip .ico{font-size:15px;}
 
   /* 顶部动作条 */
@@ -645,14 +667,54 @@
   });
 
   /* ============ 2. 快捷栏：点击滚动定位 ============ */
+  function setActiveChip(id){
+    document.querySelectorAll('.chip').forEach(function(c){
+      c.classList.toggle('active', c.getAttribute('data-target') === id);
+    });
+  }
+  function stickyH(){
+    var el = document.querySelector('.chips-wrap');
+    return el ? el.offsetHeight : 92;
+  }
   document.querySelectorAll('.chip').forEach(function(chip){
     chip.addEventListener('click', function(){
-      var t = document.getElementById(chip.getAttribute('data-target'));
+      var id = chip.getAttribute('data-target');
+      if(!id) return;                       /* 外链（如下载简历）走默认行为 */
+      var t = document.getElementById(id);
       if(!t) return;
-      var top = t.getBoundingClientRect().top + window.pageYOffset - 74; // 减去吸顶栏高度
+      /* 精确偏移：减掉吸顶栏实际高度 + 一点留白 */
+      var top = Math.max(0, t.getBoundingClientRect().top + window.pageYOffset - stickyH() - 12);
       window.scrollTo({ top: top, behavior: 'smooth' });
+
+      t.classList.remove('flash');
+      void t.offsetWidth;
+      t.classList.add('flash');
+      setTimeout(function(){ t.classList.remove('flash'); }, 2000);
+      setActiveChip(id);
     });
   });
+
+  /* 滚动时高亮当前区块 */
+  var spyIds = ['proj-1','proj-2','proj-3','proj-4','video','contact'];
+  var spyBusy = false;
+  function spy(){
+    if(spyBusy) return;
+    spyBusy = true;
+    requestAnimationFrame(function(){
+      spyBusy = false;
+      var line = window.pageYOffset + stickyH() + 90;
+      var cur = null;
+      spyIds.forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el) return;
+        if(el.getBoundingClientRect().top + window.pageYOffset <= line) cur = id;
+      });
+      if(cur) setActiveChip(cur);
+    });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('resize', spy);
+  spy();
 
   /* ============ 3. 视频进度条：不支持 Range 的服务器用 Blob 兜底 ============ */
   (function fixVideoSeek(){
