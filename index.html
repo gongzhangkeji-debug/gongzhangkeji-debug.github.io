@@ -159,6 +159,19 @@
     outline-offset:8px;
     animation:flashRing 1.9s var(--ease) forwards;
   }
+  /* 聚光灯：其余内容压暗，目标区块浮起单独清晰 */
+  .spot-veil{
+    position:fixed;inset:0;z-index:55;background:rgba(4,6,8,.62);
+    opacity:0;pointer-events:none;transition:opacity .38s var(--ease);
+  }
+  .spot-veil.on{opacity:1;}
+  .spotlight{
+    position:relative;z-index:56;
+    transform:scale(1.012);
+    border-radius:18px;
+    box-shadow:0 26px 80px rgba(0,0,0,.75), 0 0 0 2px rgba(61,214,140,.6);
+    transition:transform .38s var(--ease), box-shadow .38s var(--ease);
+  }
   @keyframes flashRing{
     0%{outline-color:rgba(61,214,140,0);}
     16%{outline-color:rgba(61,214,140,.85);}
@@ -828,16 +841,31 @@
         var top = Math.max(0, rectTop - navH - 18);
         window.scrollTo({ top: top, behavior: 'smooth' });
 
-        /* 落点高亮 1.9 秒 */
-        target.classList.remove('flash');
-        void target.offsetWidth;
-        target.classList.add('flash');
-        setTimeout(function(){ target.classList.remove('flash'); }, 2000);
-
+        /* 聚光灯：目标浮起、其余压暗，1.8 秒后恢复 */
+        spotlight(target);
         setActiveChip(targetId);
       }
     });
   });
+
+  /* ---------- 聚光灯：让指定区块单独跳出、单独清晰 ---------- */
+  var veil = document.createElement('div');
+  veil.className = 'spot-veil';
+  document.body.appendChild(veil);
+  var spotTimer = null, spotEl = null;
+  function spotlight(el){
+    if(!el) return;
+    if(spotEl){ spotEl.classList.remove('spotlight'); }
+    clearTimeout(spotTimer);
+    spotEl = el;
+    el.classList.add('spotlight');
+    veil.classList.add('on');           /* 延迟一点让滚动先落定 */
+    spotTimer = setTimeout(function(){
+      veil.classList.remove('on');
+      el.classList.remove('spotlight');
+      spotEl = null;
+    }, 1800);
+  }
 
   /* ---------- 当前区块高亮（scroll spy） ---------- */
   function setActiveChip(id){

@@ -195,6 +195,19 @@
     border-radius:16px;
     animation:flashRing 1.9s var(--ease) forwards;
   }
+  /* 聚光灯：目标浮起、其余压暗 */
+  .spot-veil{
+    position:fixed;inset:0;z-index:70;background:rgba(4,6,8,.66);
+    opacity:0;pointer-events:none;transition:opacity .38s var(--ease);
+  }
+  .spot-veil.on{opacity:1;}
+  .spotlight{
+    position:relative;z-index:71;
+    transform:scale(1.012);
+    border-radius:18px;
+    box-shadow:0 22px 70px rgba(0,0,0,.8), 0 0 0 2px rgba(61,214,140,.6);
+    transition:transform .38s var(--ease), box-shadow .38s var(--ease);
+  }
   @keyframes flashRing{
     0%{outline-color:rgba(61,214,140,0);}
     16%{outline-color:rgba(61,214,140,.85);}
@@ -667,6 +680,25 @@
   });
 
   /* ============ 2. 快捷栏：点击滚动定位 ============ */
+  /* 聚光灯：让目标区块单独跳出 */
+  var veil = document.createElement('div');
+  veil.className = 'spot-veil';
+  document.body.appendChild(veil);
+  var spotTimer = null, spotEl = null;
+  function spotlight(el){
+    if(!el) return;
+    if(spotEl) spotEl.classList.remove('spotlight');
+    clearTimeout(spotTimer);
+    spotEl = el;
+    el.classList.add('spotlight');
+    veil.classList.add('on');
+    spotTimer = setTimeout(function(){
+      veil.classList.remove('on');
+      el.classList.remove('spotlight');
+      spotEl = null;
+    }, 1800);
+  }
+
   function setActiveChip(id){
     document.querySelectorAll('.chip').forEach(function(c){
       c.classList.toggle('active', c.getAttribute('data-target') === id);
@@ -686,10 +718,7 @@
       var top = Math.max(0, t.getBoundingClientRect().top + window.pageYOffset - stickyH() - 12);
       window.scrollTo({ top: top, behavior: 'smooth' });
 
-      t.classList.remove('flash');
-      void t.offsetWidth;
-      t.classList.add('flash');
-      setTimeout(function(){ t.classList.remove('flash'); }, 2000);
+      spotlight(t);
       setActiveChip(id);
     });
   });
